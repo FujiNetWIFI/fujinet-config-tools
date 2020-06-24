@@ -1,3 +1,9 @@
+# Visual Studio Code workspace files
+*.code-workspace
+
+# VS Code build directory
+**/.vscode
+
 obj/
 *.map
 *.com
