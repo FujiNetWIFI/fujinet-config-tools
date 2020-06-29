@@ -20,6 +20,7 @@
 #include "sio.h"
 #include "conio.h"
 #include "err.h"
+#include "version.h"
 
 unsigned char buf[255];
 
@@ -35,8 +36,9 @@ union
     unsigned char dnsIP[4];
     unsigned char macAddress[6];
     unsigned char bssid[6];
+    char firmware[15];
   };
-  unsigned char rawData[124];
+  unsigned char rawData[139];
 } adapterConfig;
 
 /**
@@ -149,6 +151,13 @@ int main(void)
 
   print("              BSSID: ");
   print_mac(adapterConfig.bssid);
+
+  print("     FCONFIG Version: ");
+  print(FCONFIG_VERSION_FULL);
+  print("\x9b");
+
+  print("  Fuji Firmware: ");
+  print(adapterConfig.firmware);
 
   print("\x9b");
 

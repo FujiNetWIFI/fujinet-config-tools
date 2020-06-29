@@ -53,5 +53,5 @@ dist: all
 	cp nmkdir/nmkdir.com dist/
 	cp nrmdir/nrmdir.com dist/
 #	cp rulisten/rulisten.com dist/
-	cp -ax doc/* dist/ 
+	cp -a doc/* dist/ 
 	dir2atr 720 fnc-tools.atr dist/
