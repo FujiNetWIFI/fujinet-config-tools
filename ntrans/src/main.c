@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
     }
 
   // if no device, set a device path.
-  if ((buf[0]>0x30) || (buf[0]<0x39))
+  if ((buf[0]>0x30) && (buf[0]<0x39))
     u=buf[0]-0x30;
   else if (buf[2]==':')
     u=buf[1]-0x30;
