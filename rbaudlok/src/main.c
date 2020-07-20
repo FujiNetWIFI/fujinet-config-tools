@@ -1,7 +1,7 @@
 /**
  * FujiNet Tools for CLI
  *
- * rbaudlok - Enable TCP port XXXX for listening
+ * rbaudlok - lock baud rate.
  *
  * usage:
  *  rbaudlok <port#>
@@ -37,6 +37,7 @@ unsigned char baud_lock(unsigned char l)
   OS.dcb.dtimlo=0x01;
   OS.dcb.dbyt=0;
   OS.dcb.daux1=l;
+  OS.dcb.daux2=0;
 
   siov();
 
@@ -84,37 +85,32 @@ void opts(char* argv[])
  * Parse option
  */
 void parseopt(char* o)
-{
-  // Set whether to enable/disable baud lock.
-  if (o[0]=='U')
-    {
-      baudLock=0;
-    }
-  else
-    {
-      baudLock=1;
-    }
-
+{  
   // param was baud rate
   switch (o[0])
     {
-    case 3: // 300
+    case '0': // No baud change
+      break;
+    case '3': // 300
       newBaud=0x08;
       break;
-    case 6: // 600
+    case '6': // 600
       newBaud=0x09;
       break;
-    case 1: // 1200 or 19200
+    case '1': // 1200 or 19200
       newBaud=(o[1]==2 ? 0x0a : 0x0f);
       break;
-    case 2: // 2400
+    case '2': // 2400
       newBaud=0x0c;
       break;
-    case 4: // 4800
+    case '4': // 4800
       newBaud=0x0d;
       break;
-    case 9: // 9600
+    case '9': // 9600
       newBaud=0x0f;
+      break;
+    case 'U': // UNLOCK
+      newBaud=baudLock=0;
       break;
     case 0x9B: // <RETURN>
       newBaud=0;
@@ -137,7 +133,7 @@ int main(int argc, char* argv[])
   if (_is_cmdline_dos())
     {
       parseopt(argv[1]);
-      if ((argc<2) || (newBaud == 0xFF))
+      if (newBaud == 0xFF)
 	{
 	  opts(argv);
 	  return(1);
