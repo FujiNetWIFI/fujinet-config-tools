@@ -8,7 +8,7 @@
 
 .SUFFIXES:
 
-all mostlyclean clean install zip:
+all mostlyclean clean install zip zap:
 	@$(MAKE) -C fconfig   --no-print-directory $@	
 	@$(MAKE) -C feject    --no-print-directory $@
 	@$(MAKE) -C fhost     --no-print-directory $@
@@ -29,6 +29,7 @@ all mostlyclean clean install zip:
 	@$(MAKE) -C ndel      --no-print-directory $@
 	@$(MAKE) -C nmkdir    --no-print-directory $@
 	@$(MAKE) -C nrmdir    --no-print-directory $@
+	@$(MAKE) -C ntrans    --no-print-directory $@
 	@$(MAKE) -C rbaudlok  --no-print-directory $@
 #	@$(MAKE) -C rulisten  --no-print-directory $@
 dist: all
@@ -53,6 +54,7 @@ dist: all
 	cp ndel/ndel.com dist/
 	cp nmkdir/nmkdir.com dist/
 	cp nrmdir/nrmdir.com dist/
+	cp ntrans/ntrans.com dist/
 #	cp rulisten/rulisten.com dist/
 	cp rbaudlok/rbaudlok.com dist/
 	cp -ax doc/* dist/ 
