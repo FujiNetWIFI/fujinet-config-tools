@@ -354,7 +354,7 @@ int main(int argc, char* argv[])
 
   // Set desired slot filename/mode
   strcpy(deviceSlots.slot[ds].file,buf);
-  deviceSlots.slot[ds].mode=3; // R/W
+  deviceSlots.slot[ds].mode=2; // R/W
   deviceSlots.slot[ds].hostSlot=hs;
 
   // Write out disk slot
