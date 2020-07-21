@@ -152,7 +152,7 @@ int main(void)
   print("              BSSID: ");
   print_mac(adapterConfig.bssid);
 
-  print("     FCONFIG Version: ");
+  print("    FCONFIG Version: ");
   print(FCONFIG_VERSION_FULL);
   print("\x9b");
 
