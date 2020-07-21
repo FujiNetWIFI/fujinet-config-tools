@@ -247,9 +247,8 @@ endif
  
 .SUFFIXES:
 .PHONY: all test clean zap love
- 
+
 all: $(PROGRAM)
-	python build_version.py
  
 -include $(DEPENDS)
 -include $(STATEFILE)
