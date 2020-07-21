@@ -27,6 +27,7 @@ all mostlyclean clean install zip zap:
 	@$(MAKE) -C ndir      --no-print-directory $@
 	@$(MAKE) -C ncopy     --no-print-directory $@
 	@$(MAKE) -C ndel      --no-print-directory $@
+	@$(MAKE) -C nren      --no-print-directory $@
 	@$(MAKE) -C nmkdir    --no-print-directory $@
 	@$(MAKE) -C nrmdir    --no-print-directory $@
 	@$(MAKE) -C ntrans    --no-print-directory $@
