@@ -56,6 +56,7 @@ dist: all
 	cp nmkdir/nmkdir.com dist/
 	cp nrmdir/nrmdir.com dist/
 	cp ntrans/ntrans.com dist/
+	cp nren/nren.com dist/
 #	cp rulisten/rulisten.com dist/
 	cp rbaudlok/rbaudlok.com dist/
 	cp -ax doc/* dist/ 
