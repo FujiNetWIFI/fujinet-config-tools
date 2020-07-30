@@ -21,32 +21,41 @@
 #include "conio.h"
 #include "err.h"
 
-unsigned char buf[40];
+char buf[40];
 
 union
 {
   struct
   {
-    unsigned char hostSlot;
-    unsigned char mode;
-    char file[36];
-  } slot[8];
-  unsigned char rawData[304];
-} deviceSlots;
+    unsigned char num_tracks;
+    unsigned char step_rate;
+    unsigned char sptH;
+    unsigned char sptL;
+    unsigned char num_sides;
+    unsigned char density;
+    unsigned char sector_sizeH;
+    unsigned char sector_sizeL;
+    unsigned char drive_present;
+    unsigned char res1;
+    unsigned char res2;
+    unsigned char res3;
+  } block;
+  unsigned char rawData[12];
+} percomBlock;
 
 /**
  * Read Device Slots
  */
-void disk_read(void)
+void percom_read(unsigned char dunit)
 {
   // Read Drive Tables
-  OS.dcb.ddevic=0x70;
-  OS.dcb.dunit=1;
-  OS.dcb.dcomnd=0xF2;
+  OS.dcb.ddevic=0x31;
+  OS.dcb.dunit=dunit;
+  OS.dcb.dcomnd='O';
   OS.dcb.dstats=0x40;
-  OS.dcb.dbuf=&deviceSlots.rawData;
+  OS.dcb.dbuf=&percomBlock.rawData;
   OS.dcb.dtimlo=0x0f;
-  OS.dcb.dbyt=sizeof(deviceSlots.rawData);
+  OS.dcb.dbyt=sizeof(percomBlock.rawData);
   OS.dcb.daux=0;
   siov();
 
@@ -58,47 +67,145 @@ void disk_read(void)
 }
 
 /**
- * main
+ * Show options
  */
-int main(void)
+void opts(void)
 {
-  unsigned char i=0;
+  print("\x9b" "FINFO <ds>\x9b\x9b  <ds> Device Slot\x9b\x9b");
+}
 
-  OS.lmargn=2;
+/**
+ * Print an 8 bit quantity
+ */
+void print_num8(unsigned char n)
+{
+  char tmp[4] = {0,0,0,0};
+
+  itoa(n,tmp,10);
+
+  print(tmp);
+}
+
+/**
+ * Print a 16 bit quantity
+ */
+void print_num16(unsigned char nl, unsigned char nh)
+{
+  char tmp[6] = {0,0,0,0,0,0};
+
+  itoa((nh*256+nl),tmp,10);
+
+  print(tmp);
+}
+
+/**
+ * Print verbose disk type
+ */
+void print_disk_type(void)
+{
+  print("Disk Type: ");
   
-  // Read in host and device slots from FujiNet
-  disk_read();
-
-  print("\x9b");
-
-  for (i=0;i<8;i++)
+  if (percomBlock.block.num_tracks == 40 &&
+      percomBlock.block.sptL == 18 &&
+      percomBlock.block.sector_sizeL == 128)
     {
-      unsigned char n=i+0x31;
-      unsigned char hs=deviceSlots.slot[i].hostSlot+0x31;
-      unsigned char m=(deviceSlots.slot[i].mode==0x02 ? 'W' : 'R');
-
-      if (deviceSlots.slot[i].hostSlot!=0xFF)
+      print("90K SS/SD (ATARI 810)");
+    }
+  else if (percomBlock.block.num_tracks == 40 &&
+	   percomBlock.block.sptL == 26 &&
+	   percomBlock.block.sector_sizeL == 128)
+    {
+      print("140K SS/ED (ATARI 1050)");
+    }
+  else if (percomBlock.block.num_tracks == 40 &&
+	   percomBlock.block.sptL == 18)
+    {
+      if (percomBlock.block.num_sides == 0)
+	print("180K SS/DD");
+      else
+	print("360K DS/DD");
+    }
+  else if (percomBlock.block.num_tracks == 80 &&
+	   percomBlock.block.sptL == 18)
+    {
+      if (percomBlock.block.num_sides == 0)
+	print("360K SS/QD");
+      else
+	print("720K DS/QD");     
+    }
+  else if (percomBlock.block.num_tracks == 77)
+    {
+      if (percomBlock.block.sector_sizeL == 128)
 	{
-	  print("D");
-	  printc(&n);
-	  print(": ");
-	  print("(");
-	  printc(&hs);
-	  print(") ");
-	  print("(");
-	  printc(&m);
-	  print(") ");
-	  print(deviceSlots.slot[i].file);
-	  print("\x9b");
+	  if (percomBlock.block.num_sides == 0)
+	    print("256K 8 inch SS/SD");
+	  else
+	    print("512K 8 inch DS/SD");
 	}
       else
 	{
-	  print("D");
-	  printc(&n);
-	  print(": ");
-	  print("Empty\x9b");
+	  if (percomBlock.block.num_sides == 0)
+	    print("512K 8 inch SS/DD");
+	  else
+	    print("1M 8 inch DS/DD");
 	}
     }
+  else if (percomBlock.block.density == 8)
+    {
+      print("1.44M 3 1/2\" DS/HD");
+    }
+
+  print("\x9b");
+}
+
+/**
+ * Show geometry info for slot
+ */
+void finfo(void)
+{
+
+  print("Number of Tracks: ");
+  print_num8(percomBlock.block.num_tracks);
+  print("\x9b");
+
+  print("Sectors per Track: ");
+  print_num16(percomBlock.block.sptL,percomBlock.block.sptH);
+  print("\x9b");
+
+  print("Number of Sides: ");
+  print_num8(percomBlock.block.num_sides+1);
+  print("\x9b");
+
+  print("Sector Size: ");
+  print_num16(percomBlock.block.sector_sizeL,percomBlock.block.sector_sizeH);
+  print("\x9b");
+
+  print("\x9b");
+  print_disk_type();
+}
+
+/**
+ * main
+ */
+int main(int argc, char* argv[])
+{
+  unsigned char dunit=0;
+
+  OS.lmargn=2;
+
+  if (_is_cmdline_dos())
+    {
+      if (argc<2)
+	{
+	  opts();
+	  return(1);
+	}
+      dunit=argv[1][0]-'0';
+    }
+
+  percom_read(dunit);
+
+  finfo();
 
   if (!_is_cmdline_dos())
     {
