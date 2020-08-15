@@ -51,7 +51,7 @@ void percom_read(unsigned char dunit)
   // Read Drive Tables
   OS.dcb.ddevic=0x31;
   OS.dcb.dunit=dunit;
-  OS.dcb.dcomnd='O';
+  OS.dcb.dcomnd='N';
   OS.dcb.dstats=0x40;
   OS.dcb.dbuf=&percomBlock.rawData;
   OS.dcb.dtimlo=0x0f;
@@ -81,7 +81,7 @@ void print_num8(unsigned char n)
 {
   char tmp[4] = {0,0,0,0};
 
-  itoa(n,tmp,10);
+  utoa(n,tmp,10);
 
   print(tmp);
 }
@@ -93,7 +93,7 @@ void print_num16(unsigned char nl, unsigned char nh)
 {
   char tmp[6] = {0,0,0,0,0,0};
 
-  itoa((nh*256+nl),tmp,10);
+  utoa((nh*256+nl),tmp,10);
 
   print(tmp);
 }
@@ -154,8 +154,36 @@ void print_disk_type(void)
     {
       print("1.44M 3 1/2\" DS/HD");
     }
+  else if (percomBlock.block.num_tracks == 1)
+    {
+      long size;
+      long hsize;
+      char tmp[8];
 
-  print("\x9b");
+      size = ((long)percomBlock.block.sptH*(long)256+(long)percomBlock.block.sptL);
+      size *= ((long)percomBlock.block.sector_sizeH*(long)256+(long)percomBlock.block.sector_sizeL);
+      
+      print("Large disk ");
+
+      if (size >= 1048576)
+	{
+	  hsize = size / 1048576;
+	  hsize += 1;
+	  ltoa(hsize,tmp,10);
+	  print(tmp);
+	  print("M");
+	}
+      else
+	{
+	  hsize = size / 1024;
+	  hsize += 1;
+	  ltoa(hsize,tmp,10);
+	  print(tmp);
+	  print("K");
+	}
+    }
+
+  print("\x9b\x9b");
 }
 
 /**
@@ -201,6 +229,16 @@ int main(int argc, char* argv[])
 	  return(1);
 	}
       dunit=argv[1][0]-'0';
+    }
+  else
+    {
+      print("DISK INFO--DEVICE SLOT NUMBER?\x9b");
+      get_line(buf,sizeof(buf));
+
+      if (buf[0]==0x9b)
+	dunit=1;
+      else
+	dunit=buf[0]-'0';
     }
 
   percom_read(dunit);
