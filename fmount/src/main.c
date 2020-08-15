@@ -203,7 +203,7 @@ int main(int argc, char* argv[])
 
   OS.lmargn=2;
   
-  if (_is_cmdline_dos() && argv[0]!='I')
+  if ((_is_cmdline_dos()) && (argv[0][0]!='I'))
     {
       if (argc<5)
 	{
@@ -212,6 +212,7 @@ int main(int argc, char* argv[])
 	}
       else
 	{
+	  unsigned char i;
 	  for (i=4;i<=argc;i++)
 	    {
 	      strcat(buf,argv[i]);
