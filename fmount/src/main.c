@@ -21,7 +21,7 @@
 #include "conio.h"
 #include "err.h"
 
-unsigned char buf[40];
+unsigned char buf[256];
 
 union
 {
@@ -109,6 +109,29 @@ void disk_write(void)
 }
 
 /**
+ * Set filename for device slot
+ */
+void set_filename(char* filename, unsigned char slot)
+{
+  OS.dcb.ddevic=0x70;
+  OS.dcb.dunit=1;
+  OS.dcb.dcomnd=0xE2;
+  OS.dcb.dstats=0x80;
+  OS.dcb.dbuf=filename;
+  OS.dcb.dtimlo=0x0F;
+  OS.dcb.dbyt=256;
+  OS.dcb.daux1=slot;
+  OS.dcb.daux2=0;
+  siov();
+
+  if (OS.dcb.dstats!=1)
+    {
+      err_sio();
+      exit(OS.dcb.dstats);
+    }
+}
+
+/**
  * Mount a host slot
  */
 void host_mount(unsigned char c)
@@ -180,14 +203,22 @@ int main(int argc, char* argv[])
 
   OS.lmargn=2;
   
-  if (_is_cmdline_dos())
+  if (_is_cmdline_dos() && argv[0]!='I')
     {
       if (argc<5)
 	{
 	  opts(argv);
 	  return(1);
 	}
-      strcpy(buf,argv[4]);
+      else
+	{
+	  for (i=4;i<=argc;i++)
+	    {
+	      strcat(buf,argv[i]);
+	      if (i<argc-1)
+		strcat(buf," ");
+	    }
+	}
     }
   else
     {
@@ -245,6 +276,9 @@ int main(int argc, char* argv[])
   // Write out disk slot
   disk_write();
 
+  // Write out the filename
+  set_filename(buf,ds);
+
   // Mount the disk.
   disk_mount(ds,o);
 
@@ -259,12 +293,6 @@ int main(int argc, char* argv[])
   print(") ");
   print(buf);
   print("\x9b\x9b");
-
-  if (!_is_cmdline_dos())
-    {
-      print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
-      get_line(buf,sizeof(buf));
-    }  
 
   return(0);
 }
