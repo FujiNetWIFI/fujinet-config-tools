@@ -119,6 +119,7 @@ int main(int argc, char* argv[])
 {
   unsigned char sa=argv[1][0];
   unsigned char s=sa-0x30;
+  unsigned char i;
 
   OS.lmargn=2;
   
@@ -134,16 +135,23 @@ int main(int argc, char* argv[])
     }
   else
     {
-      // DOS 2.0
-      print("\x9b");
-
-      print("WHICH HOST SLOT (1-8)? ");
+      print("EDIT HOST SLOT--NUMBER, HOSTNAME?\x9b");
       get_line(buf,sizeof(buf));
       sa=buf[0];
-      s=sa-0x30;
-      
-      print("HOSTNAME OR \xA0\xD2\xC5\xD4\xD5\xD2\xCE\xA0 TO CLEAR:\x9b");
-      get_line(buf,sizeof(buf));
+      s=buf[0]-0x31;
+      for (i=0;i<strlen(buf);i++)
+	{
+	  if (buf[i]==',')
+	    {
+	      i++;
+	      break;
+	    }	  
+	}
+
+      // Trim any whitespace
+      while (buf[i]==' ')
+	i++;
+
     }
   
   if (s<1 || s>8)
@@ -152,29 +160,27 @@ int main(int argc, char* argv[])
       return(1);
     }
 
-  s-=1;
-  
   // Read in host and device slots from FujiNet
   host_read();
 
   // alter host slot
-  if (buf[0]==0x00)
+  if (buf[i]==0x00)
     {
       // Erase host
       memset(hostSlots.host[s],0x00,sizeof(hostSlots.host[s]));
       print(msg_host_slot);
       printc(&sa);
-      print(" cleared.\x9b");
+      print("--CLEARED\x9b");
     }
   
   else
     {
       // Alter host value
-      strcpy(hostSlots.host[s],buf);
+      strcpy(hostSlots.host[s],&buf[i]);
       print(msg_host_slot);
       printc(&sa);
-      print(" changed to: ");
-      print(buf);
+      print("--CHANGED TO:\x9b");
+      print(&buf[i]);
       print("\x9b");
     }
 
@@ -183,12 +189,6 @@ int main(int argc, char* argv[])
 
   // Mount server
   host_mount(s);
-
-  if (!_is_cmdline_dos())
-    {
-      print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
-      get_line(buf,sizeof(buf));
-    }  
   
   return(0);
 }
