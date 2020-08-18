@@ -161,9 +161,7 @@ int main(int argc, char* argv[])
   else
     {
       // DOS 2.0/MYDOS
-      print("\x9b");
-
-      print("EJECT FROM WHICH DEVICE SLOT? ");
+      print("DEVICE SLOT EJECT--WHICH SLOT?\x9b");
       get_line(buf,sizeof(buf));
       s=buf[0]-0x30;
     }
@@ -205,11 +203,5 @@ int main(int argc, char* argv[])
       print(": not in use.\x9b");
     }
 
-  if (!_is_cmdline_dos())
-    {
-      print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
-      get_line(buf,sizeof(buf));
-    }
-  
   return(0);
 }
