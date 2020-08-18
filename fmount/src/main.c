@@ -21,7 +21,7 @@
 #include "conio.h"
 #include "err.h"
 
-unsigned char buf[256];
+unsigned char buf[128];
 
 union
 {
@@ -195,17 +195,15 @@ void opts(char* argv[])
  */
 int main(int argc, char* argv[])
 {
-  unsigned char ds=argv[1][0]-0x30;
-  unsigned char hs=argv[2][0]-0x30;
-  unsigned char dsa=argv[1][0];
-  unsigned char hsa=argv[2][0];
-  unsigned char o=(argv[3][0]=='W' ? 0x02 : 0x01);
-
+  unsigned char ds,hs,dsa,hsa,o;
+  char* tokens[4]; // Token cursors.
+  unsigned char i; // Loop indices
+  
   OS.lmargn=2;
   
-  if ((_is_cmdline_dos()) && (argv[0][0]!='I'))
+  if (_is_cmdline_dos())
     {
-      if (argc<5)
+      if (argc<2)
 	{
 	  opts(argv);
 	  return(1);
@@ -213,7 +211,7 @@ int main(int argc, char* argv[])
       else
 	{
 	  unsigned char i;
-	  for (i=4;i<=argc;i++)
+	  for (i=1;i<=argc;i++)
 	    {
 	      strcat(buf,argv[i]);
 	      if (i<argc-1)
@@ -224,39 +222,72 @@ int main(int argc, char* argv[])
   else
     {
       // DOS 2.0
-      print("\x9b");
-
-      print("DEVICE SLOT (1-8)? ");
-      get_line(buf,sizeof(buf));
-      ds=buf[0]-0x30;
-      dsa=buf[0];
-
-      print("HOST SLOT (1-8)? ");
-      get_line(buf,sizeof(buf));
-      hs=buf[0]-0x30;
-      hsa=buf[0];
-
-      print("READ / WRITE (R/W)? ");
-      get_line(buf,sizeof(buf));
-
-      if (buf[0]=='w')
-	buf[0]=='W';
-      
-      o=(buf[0]=='W' ? 0x02 : 0x01);
-
-      print("FILENAME:\x9b");
+      print("MOUNT--DRIVE, HOST SLOT, R/W, FILE?\x9b");
       get_line(buf,sizeof(buf));
     }
+
+  // Tokenize string.
+  tokens[0]=strtok(buf,",");
+  tokens[1]=strtok(NULL,",");
+  tokens[2]=strtok(NULL,",");
+  tokens[3]=strtok(NULL,",");
+
+  if (tokens[0]==NULL ||
+      tokens[1]==NULL ||
+      tokens[2]==NULL ||
+      tokens[3]==NULL)
+    {
+      print("ALL ARGUMENTS REQUIRED\x9b");
+      return(1);
+    }
+
+  // Trim whitespace.
+  for (i=0;i<4;i++)
+    while (*tokens[i]==' ')
+      tokens[i]++;
+
+  // Catch D: and Dx:, turn into device slot #
+  if (tokens[0][0]=='D')
+    {
+      if (tokens[0][1]==':')
+	dsa='1'; // D: is slot 1
+      else
+	dsa=tokens[0][1];
+    }
+  else
+    dsa=tokens[0][0];
+
+  ds=dsa-'0';
+  
   if (ds<1 || ds>8)
     {
-      print("INVALID DRIVE SLOT NUMBER.\x9b");
+      print("INVALID DRIVE SLOT NUMBER\x9b");
       return(1);
     }
 
+  hsa=*tokens[1];
+  hs=hsa-'0';
+  
   if (hs<1 || hs>8)
     {
-      print("INVALID HOST SLOT NUMBER.\x9b");
+      print("INVALID HOST SLOT NUMBER\x9b");
       return(1);
+    }
+
+  // Set mode appropriately.
+  switch (*tokens[2])
+    {
+    case 'w':
+    case 'W':
+      o=2;
+      break;
+    case 'r':
+    case 'R':
+      o=1;
+      break;
+    default:
+      print("INVALID MODE\x9b");
+      exit(1);
     }
   
   hs-=1;
@@ -270,7 +301,6 @@ int main(int argc, char* argv[])
   host_mount(hs);
 
   // Set desired slot filename/mode
-  strcpy(deviceSlots.slot[ds].file,buf);
   deviceSlots.slot[ds].mode=o;
   deviceSlots.slot[ds].hostSlot=hs;
 
@@ -278,7 +308,7 @@ int main(int argc, char* argv[])
   disk_write();
 
   // Write out the filename
-  set_filename(buf,ds);
+  set_filename(tokens[3],ds);
 
   // Mount the disk.
   disk_mount(ds,o);
@@ -292,7 +322,7 @@ int main(int argc, char* argv[])
   print("(");
   print((o==0x02 ? "W" : "R"));
   print(") ");
-  print(buf);
+  print(tokens[3]);
   print("\x9b\x9b");
 
   return(0);

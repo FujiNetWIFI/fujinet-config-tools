@@ -147,9 +147,10 @@ void directory_close(unsigned char hs)
 void opts(char* argv[])
 {
   print(argv[0]);
-  print(" <hs#>\x9b\x9b");
+  print(" <hs#>,[path]:[filter]\x9b\x9b");
   print("<hs#> - host slot (1-8)\x9b");
-  print("<path> - Path or '/' if not specified\x9b");  
+  print("[path] - Path or '/' if not specified\x9b");
+  print("[filter] - Optional wildcard.");
 }
 
 /**
@@ -158,20 +159,22 @@ void opts(char* argv[])
 int main(int argc, char* argv[])
 {
   unsigned char s=argv[1][0]-0x30;
-  unsigned char i;
+  unsigned char sa[2];
+  
+  unsigned char i,j;
   
   OS.lmargn=2;
   
   if (_is_cmdline_dos())
     {
-      if (argc<3)
+      if (argc<2)
 	{
 	  opts(argv);
 	  return(1);
 	}
       else
 	{
-	  for (i=2;i<=argc;i++)
+	  for (i=1;i<=argc;i++)
 	    {
 	      strcat(buf,argv[i]);
 	      if (i<argc-1)
@@ -183,27 +186,47 @@ int main(int argc, char* argv[])
     {
       print("HOST DIRECTORY--HOST SLOT, PATH?\x9b");
       get_line(buf,sizeof(buf));
-      s=buf[0]-0x31;
-      for (i=0;i<strlen(buf);i++)
-	{
-	  if (buf[i]==',')
-	    {
-	      i++;
-	      break;
-	    }	  
-	}
-
-      // Trim any whitespace
-      while (buf[i]==' ')
-	i++;
     }
+
+  if (buf[0]==0x00)
+    s=1;
+  else
+    s=buf[0]-0x30;
+  
+  sa[0]=s+0x30;
 
   if (s<1 || s>8)
     {
       print("INVALID SLOT NUMBER.\x9b");
       return(1);
     }
-
+  
+  // Check for first comma
+  for (i=0;i<strlen(buf);i++)
+    {
+      if (buf[i]==',')
+	{
+	  i++;
+	  break;
+	}	  
+    }
+  
+  // Trim any whitespace
+  while (buf[i]==' ')
+    i++;
+  
+  j=i; // Store path cursor for later.
+  
+  // Check for colon for filter.
+  for (i=i;i<strlen(buf);i++)
+    {
+      if (buf[i]==':')
+	{
+	  buf[i]=0x00; // NULL separator required for pattern.
+	  break;
+	}
+    }
+  
   s-=1;
   
   // Read in host and device slots from FujiNet
@@ -211,14 +234,15 @@ int main(int argc, char* argv[])
 
   // Mount host for reading
   host_mount(s);
-  
-  print("\x9b");
 
+  print("SLOT #");
+  printc(sa);
+  print("--");
   print(hostSlots.host[s]);
   
   print(":\x9b\x9b");
 
-  directory_open(s,&buf[i]);
+  directory_open(s,&buf[j]);
 
   // Read directory
   while (buf[0]!=0x7F)
