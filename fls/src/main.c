@@ -21,8 +21,7 @@
 #include "conio.h"
 #include "err.h"
 
-unsigned char path[256]="/";
-unsigned char buf[40];
+unsigned char buf[128];
 
 union
 {
@@ -80,14 +79,14 @@ void host_mount(unsigned char c)
 /**
  * Open TNFS directory on host slot
  */
-void directory_open(unsigned char hs)
+void directory_open(unsigned char hs, char* b)
 {
   // Open TNFS directory
   OS.dcb.ddevic=0x70;
   OS.dcb.dunit=1;
   OS.dcb.dcomnd=0xF7;
   OS.dcb.dstats=0x80;
-  OS.dcb.dbuf=&path;
+  OS.dcb.dbuf=b;
   OS.dcb.dtimlo=0x0F;
   OS.dcb.dbyt=256;
   OS.dcb.daux=hs;
@@ -108,7 +107,7 @@ void directory_read(unsigned char hs, unsigned char len)
 {
   OS.dcb.dcomnd=0xF6;
   OS.dcb.dstats=0x40;
-  OS.dcb.dbuf=&path;
+  OS.dcb.dbuf=&buf;
   OS.dcb.dbyt=len;
   OS.dcb.daux1=len;
   OS.dcb.daux2=hs;
@@ -150,6 +149,7 @@ void opts(char* argv[])
   print(argv[0]);
   print(" <hs#>\x9b\x9b");
   print("<hs#> - host slot (1-8)\x9b");
+  print("<path> - Path or '/' if not specified\x9b");  
 }
 
 /**
@@ -158,27 +158,46 @@ void opts(char* argv[])
 int main(int argc, char* argv[])
 {
   unsigned char s=argv[1][0]-0x30;
-
+  unsigned char i;
+  
   OS.lmargn=2;
   
   if (_is_cmdline_dos())
     {
-      if (argc<2)
+      if (argc<3)
 	{
 	  opts(argv);
 	  return(1);
 	}
+      else
+	{
+	  for (i=2;i<=argc;i++)
+	    {
+	      strcat(buf,argv[i]);
+	      if (i<argc-1)
+		strcat(buf," ");
+	    }
+	}
     }
-  else
+  else // DOS 2.0
     {
-      // DOS 2.0
-      print("\x9b");
-
-      print("HOST SLOT (1-8)? ");
+      print("HOST DIRECTORY--HOST SLOT, PATH?\x9b");
       get_line(buf,sizeof(buf));
-      s=buf[0]-0x30;
+      s=buf[0]-0x31;
+      for (i=0;i<strlen(buf);i++)
+	{
+	  if (buf[i]==',')
+	    {
+	      i++;
+	      break;
+	    }	  
+	}
+
+      // Trim any whitespace
+      while (buf[i]==' ')
+	i++;
     }
-  
+
   if (s<1 || s>8)
     {
       print("INVALID SLOT NUMBER.\x9b");
@@ -199,34 +218,28 @@ int main(int argc, char* argv[])
   
   print(":\x9b\x9b");
 
-  directory_open(s);
+  directory_open(s,&buf[i]);
 
   // Read directory
-  while (path[0]!=0x7F)
+  while (buf[0]!=0x7F)
     {
-      memset(path,0,sizeof(path));
-      path[0]=0x7f;
+      memset(buf,0,sizeof(buf));
+      buf[0]=0x7f;
 
       directory_read(s,36); // show 36 chars max
       
-      if (path[0]=='.')
+      if (buf[0]=='.')
 	continue;
-      else if (path[0]==0x7F)
+      else if (buf[0]==0x7F)
 	break;
       else
 	{
-	  print(path);
+	  print(buf);
 	  print("\x9b");
 	}
     }
 
   directory_close(s);
 
-  if (!_is_cmdline_dos())
-    {
-      print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
-      get_line(buf,sizeof(buf));
-    }  
-  
   return(0);
 }
