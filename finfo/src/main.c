@@ -192,7 +192,7 @@ void print_disk_type(void)
 void finfo(void)
 {
 
-  print("Number of Tracks: ");
+  print("\x9bNumber of Tracks: ");
   print_num8(percomBlock.block.num_tracks);
   print("\x9b");
 
