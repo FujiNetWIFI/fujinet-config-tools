@@ -21,7 +21,7 @@
 #include "conio.h"
 #include "err.h"
 
-unsigned char buf[80];
+unsigned char buf[128];
 
 union
 {
@@ -39,37 +39,47 @@ union
 int main(int argc, char* argv[])
 {
   unsigned char wifiStatus=0;
-
-  OS.soundr=0;
+  char* tokens[2];
+  unsigned char i;
+  
   OS.lmargn=2;
 
   if (_is_cmdline_dos())
     {
-      if (argc<3)
+      if (argc<2)
 	{
 	  print(argv[0]);
-	  print(" <SSID> <PASSWORD>\x9b");
+	  print(" <SSID>,<PASSWORD>\x9b");
 	  exit(1);
 	}
-      
-      strcpy(netConfig.ssid,argv[1]);
-      strcpy(netConfig.password,argv[2]);
+
+      for (i=1;i<=argc;i++)
+	{
+	  strcat(buf,argv[i]);
+	  if (i<argc-1)
+	    strcat(buf," ");
+	}
     }
   else
     {
       print("\x9b");
+      print("NETWORK--SSID, PASSWORD?\x9b");
+      get_line(buf,sizeof(buf));
+    }
 
-      // Dos 2
-      print("ENTER SSID: ");
-      get_line(buf,sizeof(buf));
-      strcpy(netConfig.ssid,buf);
-      
-      print("ENTER PASSWORD: ");
-      get_line(buf,sizeof(buf));
-      strcpy(netConfig.password,buf);      
+  tokens[0]=strtok(buf,",");
+  tokens[1]=strtok(NULL,",");
+
+  strcpy(netConfig.ssid,tokens[0]);
+  strcpy(netConfig.password,tokens[1]);
+
+  if (tokens[0]==NULL)
+    {
+      print("NETWORK NAME REQUIRED\x9b");
+      return(1);
     }
   
-  print("Connecting to network: ");
+  print("CONNECTING--");
   print(netConfig.ssid);
   print("...\x9b");
     
@@ -108,7 +118,7 @@ int main(int argc, char* argv[])
 	    }
 	}
       
-      print("Not Connected.\x9b");
+      print("\x9bNOT CONNECTED.\x9b");
     }
   else
     {
@@ -117,7 +127,7 @@ int main(int argc, char* argv[])
 
   OS.soundr=1;
 
-  if (!_is_cmdline_dos())
+  if (_dos_type==MYDOS)
     {
       print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
       get_line(buf,sizeof(buf));
