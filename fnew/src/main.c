@@ -4,7 +4,7 @@
  * fnew - make new ATR disk on host
  *
  * usage:
- *  feject <ds#> <hs#> <sect> <sectsize> <fname>
+ *  fnew <ds#> <hs#> <sect> <sectsize> <fname>
  *
  * Author: Thomas Cherryhomes
  *  <thom.cherryhomes@gmail.com>
@@ -21,7 +21,7 @@
 #include "conio.h"
 #include "err.h"
 
-unsigned char buf[80];
+unsigned char buf[128];
 
 union
 {
@@ -48,9 +48,9 @@ union
     unsigned short sectorSize;
     unsigned char hostSlot;
     unsigned char deviceSlot;
-    char filename[36];
+    char filename[256];
   };
-  unsigned char rawData[42];
+  unsigned char rawData[262];
 } newDisk;
 
 /**
@@ -202,12 +202,12 @@ void disk_mount(unsigned char c, unsigned char o)
 void opts(char* argv[])
 {
   print(argv[0]);
-  print(" <DS#> <HS#> <NS> <SS> <FNAME>\x9b\x9b");
-  print("<DS#>   - device slot (1-8)\x9b");
-  print("<HS#>   - host slot (1-8)\x9b");
-  print("<NS>    - Number of Sectors\x9b");
-  print("<SS>    - sector size (128 or 256)\x9b");
-  print("<FNAME> - Image Filename\x9b");
+  print(" <DS#>,[HS#],[NS],[SS],[FNAME]\x9b\x9b"
+        "<DS#>   - device slot (1-8)\x9b"
+        "[HS#]   - host slot (1-8)\x9b"
+        "[NS]    - Number of Sectors\x9b"
+        "[SS]    - sector size (128 or 256)\x9b"
+        "[FNAME] - Image Filename\x9b");
 }
 
 /**
@@ -379,7 +379,7 @@ int main(int argc, char* argv[])
   print(buf);
   print("\x9b");
 
-  if (!_is_cmdline_dos())
+  if (_dos_type==MYDOS)
     {
       print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
       get_line(buf,sizeof(buf));
