@@ -13,6 +13,7 @@ all mostlyclean clean install zip zap:
 	@$(MAKE) -C feject    --no-print-directory $@
 	@$(MAKE) -C fhost     --no-print-directory $@
 	@$(MAKE) -C finfo     --no-print-directory $@
+	@$(MAKE) -C fcd       --no-print-directory $@
 	@$(MAKE) -C fld       --no-print-directory $@
 	@$(MAKE) -C flh       --no-print-directory $@
 	@$(MAKE) -C fls       --no-print-directory $@
@@ -40,6 +41,7 @@ dist: all
 	cp feject/feject.com dist/
 	cp fhost/fhost.com dist/
 	cp finfo/finfo.com dist/
+	cp fcd/fcd.com dist/
 	cp fld/fld.com dist/
 	cp flh/flh.com dist/
 	cp fls/fls.com dist/
@@ -59,7 +61,6 @@ dist: all
 	cp nrmdir/nrmdir.com dist/
 	cp ntrans/ntrans.com dist/
 	cp nren/nren.com dist/
-#	cp rulisten/rulisten.com dist/
 	cp rbaudlok/rbaudlok.com dist/
 	cp -ax doc/* dist/ 
 	dir2atr 720 fnc-tools.atr dist/
