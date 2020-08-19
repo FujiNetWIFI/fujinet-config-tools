@@ -153,6 +153,8 @@ int main(int argc, char* argv[])
 	i++;
 
     }
+
+  s-=1;
   
   if (s<1 || s>8)
     {
