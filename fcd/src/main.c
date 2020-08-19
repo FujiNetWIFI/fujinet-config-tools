@@ -24,7 +24,7 @@ unsigned char i=0;
 void fcd(void)
 {
   OS.dcb.ddevic=0x70;
-  OS.dcb.dunit=unit;
+  OS.dcb.dunit=1;
   OS.dcb.dcomnd=0xE1;
   OS.dcb.dstats=0x80;
   OS.dcb.dbuf=&buf;
