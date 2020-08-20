@@ -107,7 +107,7 @@ void host_write(void)
 void opts(char* argv[])
 {
   print(argv[0]);
-  print(" <hs#> [HOSTNAME]\x9b\x9b");
+  print(" <hs#>,[HOSTNAME]\x9b\x9b");
   print("<hs#> - host slot (1-8)\x9b\x9b");
   print("If hostname is not specified, host slot will be erased.\x9b");
 }
@@ -125,36 +125,35 @@ int main(int argc, char* argv[])
   
   if (_is_cmdline_dos())
     {
-      if (argc<2 || argc>3)
+      if (argc<2)
 	{
 	  opts(argv);
 	  return(1);
 	}
       
-      strcpy(buf,argv[2]);
+      strcpy(buf,argv[1]);
     }
   else
     {
       print("EDIT HOST SLOT--NUMBER, HOSTNAME?\x9b");
       get_line(buf,sizeof(buf));
-      sa=buf[0];
-      s=buf[0]-0x31;
-      for (i=0;i<strlen(buf);i++)
-	{
-	  if (buf[i]==',')
-	    {
-	      i++;
-	      break;
-	    }	  
-	}
-
-      // Trim any whitespace
-      while (buf[i]==' ')
-	i++;
-
     }
 
-  s-=1;
+  sa=buf[0];
+  s=buf[0]-0x31;
+  for (i=0;i<strlen(buf);i++)
+    {
+      if (buf[i]==',')
+	{
+	  i++;
+	  break;
+	}	  
+    }
+  
+  // Trim any whitespace
+  while (buf[i]==' ')
+    i++;
+
   
   if (s<1 || s>8)
     {
