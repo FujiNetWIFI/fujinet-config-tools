@@ -142,6 +142,19 @@ void directory_close(unsigned char hs)
 }
 
 /**
+ * Set current directory cursor
+ */
+void set_directory_position(unsigned short pos)
+{
+  OS.dcb.dcomnd = 0xE4;
+  OS.dcb.dstats = 0x00;
+  OS.dcb.dbuf = NULL;
+  OS.dcb.dbyt = 0;
+  OS.dcb.daux = pos;
+  siov();
+}
+
+/**
  * show options
  */
 void opts(char* argv[])
@@ -162,6 +175,8 @@ int main(int argc, char* argv[])
   unsigned char sa[2];
   
   unsigned char i,j;
+
+  unsigned short pos=0;
   
   OS.lmargn=2;
   
@@ -251,6 +266,12 @@ int main(int argc, char* argv[])
       buf[0]=0x7f;
 
       directory_read(s,36); // show 36 chars max
+
+      if (strlen(buf)==35)
+	{
+	  set_directory_position(pos);
+	  directory_read(s,128);
+	}
       
       if (buf[0]=='.')
 	continue;
@@ -261,6 +282,7 @@ int main(int argc, char* argv[])
 	  print(buf);
 	  print("\x9b");
 	}
+      pos++;
     }
 
   directory_close(s);
