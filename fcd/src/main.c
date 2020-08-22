@@ -21,16 +21,16 @@
 unsigned char buf[256];
 unsigned char i=0;
 
-void fcd(void)
+void fcd(unsigned char hs, const char* prefix)
 {
   OS.dcb.ddevic=0x70;
   OS.dcb.dunit=1;
   OS.dcb.dcomnd=0xE1;
   OS.dcb.dstats=0x80;
-  OS.dcb.dbuf=&buf;
+  OS.dcb.dbuf=prefix;
   OS.dcb.dtimlo=0x1f;
   OS.dcb.dbyt=256;
-  OS.dcb.daux=0;
+  OS.dcb.daux1=hs;
   siov();
 
   if (OS.dcb.dstats!=1)
@@ -41,32 +41,46 @@ void fcd(void)
 }
 
 int main(int argc, char* argv[])
-{  
+{
+  unsigned char i;
+  char *tokens[2];
+  unsigned char hs;
+  
   OS.lmargn=2;
   
   if (_is_cmdline_dos())
     {
-      if (argc<2)
-	goto interactive;
-      else
+      for (i=1;i<=argc;i++)
 	{
-	  for (i=1;i<=argc;i++)
-	    {
-	      strcat(buf,argv[i]);
-	      if (i<argc-1)
-		strcat(buf," ");
-	    }
+	  strcat(buf,argv[i]);
+	  if (i<argc-1)
+	    strcat(buf," ");
 	}
     }
   else
     {
-    interactive:
       // DOS 2.0/MYDOS
-      print("HOST PREFIX--ENTER NEW OR \xD2\xC5\xD4\xD5\xD2\xCE TO CLEAR\x9b");
+      print("HOST PREFIX--HOST SLOT, PATH?\x9b");
       get_line(buf,240);
     }
 
-  fcd();
+  tokens[0]=strtok(buf,",");
+  tokens[1]=strtok(NULL,",");
+
+  hs=atoi(tokens[0]);
+  
+  if (tokens[0]==NULL)
+    {
+      print("HOST SLOT REQUIRED\x9b");
+      return(1);
+    }
+  else if (hs<1 || hs>8)
+    {
+      print("INVALID HOST SLOT NUMBER\x9b");
+      return(1);
+    }
+
+  fcd(hs-1,tokens[1]);
   
   return(0);
 }
