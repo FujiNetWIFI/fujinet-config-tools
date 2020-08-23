@@ -191,16 +191,13 @@ int main(int argc, char* argv[])
       
       s+=0x31;
       
-      print("Disk D");
-      printc(&s);
-      print(": ejected.\x9b");
     }
   else
     {
-      print("Disk D");
+      print("D");
       s+=0x31;
       printc(&s);
-      print(": not in use.\x9b");
+      print(": NOT IN USE\x9b");
     }
 
   return(0);
