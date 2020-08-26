@@ -225,11 +225,19 @@ void set_filename(char* filename, unsigned char slot)
 void opts(char* argv[])
 {
   print(argv[0]);
-  print(" <DS#>,[HS#],[NS],[SS],[FNAME]\x9b\x9b"
+  print(" <DS#>,[HS#],[T],[FNAME]\x9b\x9b"
         "<DS#>   - device slot (1-8)\x9b"
         "[HS#]   - host slot (1-8)\x9b"
         "[NS]    - Number of Sectors\x9b"
         "[SS]    - sector size (128 or 256)\x9b"
+	"[T]     - type, one of:\x9b"
+	"\t\t1: 90K    (SS/SD)\x9b"
+	"\t\t2: 140K   (SS/ED)\x9b"
+	"\t\t3: 180K   (SS/DD)\x9b"
+	"\t\t4: 360K   (DS/DD)\x9b"
+	"\t\t5: 720K   (DS/QD)\x9b"
+	"\t\t6: 1440K  (DS/HD), or...\x9b"
+	"\t\t1-65535:128|256 (Custom)\x9b"
         "[FNAME] - Image Filename\x9b");
 }
 
@@ -238,20 +246,25 @@ void opts(char* argv[])
  */
 int main(int argc, char* argv[])
 {
-  unsigned char ds,hs,dsa,hsa,ns,ss;
+  unsigned char ds,hs,dsa,hsa;
+  unsigned short ns,ss;
   char* tokens[4];
   unsigned char i;
+  char* nst;
+  char* sst;
   
   OS.lmargn=2;
   
   if (_is_cmdline_dos())
     {
+      memset(buf,0,sizeof(buf));
+      
       if (argc<2)
 	{
 	  opts(argv);
 	  return(1);
 	}
-      for (i=1;i<=argc;i++)
+      for (i=1;i<argc;i++)
 	{
 	  strcat(buf,argv[i]);
 	  if (i<argc-1)
@@ -273,13 +286,13 @@ int main(int argc, char* argv[])
 
   // Tokenize and trim any whitespace after each ,
   tokens[0]=strtok(buf,",");
-  for (i=1;i<=4;i++)
+  for (i=1;i<4;i++)
     {
       tokens[i]=strtok(NULL,",");
       while (*tokens[i]==' ')
 	tokens[i]++;
     }
-
+  
   if (tokens[0]==NULL ||
       tokens[1]==NULL ||
       tokens[2]==NULL ||
@@ -325,58 +338,52 @@ int main(int argc, char* argv[])
   
   // Write out disk slot
   disk_write();
-  print(tokens[2]);
-  // Determine disk type
-  switch (tokens[2][0])
-    {
-    case '1':
-      ns=720;
-      ss=128;
-      break;
-    case '2':
-      ns=1040;
-      ss=128;
-      break;
-    case '3':
-      ns=720;
-      ss=256;
-      break;
-    case '4':
-      ns=1440;
-      ss=256;
-      break;
-    case '5':
-      ns=720;
-      ss=256;
-      break;
-    case '6':
-      ns=5760;
-      ss=256;
-      break;
-    case 'C':
-      {
-	char* nst;
-	char* sst;
-	
-	nst=strtok(tokens[2],":");
-	sst=strtok(NULL,":");
-
-	if (nst==NULL || sst==NULL)
-	  {
-	    print("INVALID CUSTOM ARGS");
-	    return(1);
-	  }
-	
-	ns=atoi(nst);
-	ss=atoi(sst);
-      }
-    }
   
+  // Determine disk type
+  nst=strtok(tokens[2],":");
+  sst=strtok(NULL,":");
+  
+  if (sst!=NULL)
+    {
+      ns=atoi(nst);
+      ss=atoi(sst);
+    }
+  else
+    {
+      switch (tokens[2][0])
+	{
+	case '1':
+	  ns=720;
+	  ss=128;
+	  break;
+	case '2':
+	  ns=1040;
+	  ss=128;
+	  break;
+	case '3':
+	  ns=720;
+	  ss=256;
+	  break;
+	case '4':
+	  ns=1440;
+	  ss=256;
+	  break;
+	case '5':
+	  ns=720;
+	  ss=256;
+	  break;
+	case '6':
+	  ns=5760;
+	  ss=256;
+	  break;
+	}
+    }
   // Create the disk
   print("\x9b");
   print("CREATING DISK\x9b");
+  
   disk_create(ns,ss,hs,ds,tokens[3]);
-  disk_write();
+  /* disk_write(); */
   disk_mount(ds,2);
 
   print("D");

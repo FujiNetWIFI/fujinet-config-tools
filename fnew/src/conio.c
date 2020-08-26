@@ -27,6 +27,8 @@ void printc(char* c)
 void get_line(char* c, unsigned char len)
 {
   unsigned char i;
+
+  memset(c,0,len);
   OS.iocb[0].buffer=c;
   OS.iocb[0].buflen=len;
   OS.iocb[0].command=IOCB_GETREC;
@@ -35,5 +37,4 @@ void get_line(char* c, unsigned char len)
   for (i=0;i<len;i++)
     if (c[i]==0x9B)
       c[i]=0x00;
-  memset(&c[strlen(c)-1],0,len);
 }

@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
   
   if (_is_cmdline_dos())
     {
-      for (i=1;i<=argc;i++)
+      for (i=1;i<argc;i++)
 	{
 	  strcat(buf,argv[i]);
 	  if (i<argc-1)

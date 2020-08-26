@@ -250,13 +250,6 @@ int main(int argc, char* argv[])
   // Mount host for reading
   host_mount(s);
 
-  print("SLOT #");
-  printc(sa);
-  print("--");
-  print(hostSlots.host[s]);
-  
-  print(":\x9b\x9b");
-
   directory_open(s,&buf[j]);
 
   // Read directory
@@ -287,5 +280,7 @@ int main(int argc, char* argv[])
 
   directory_close(s);
 
+  print("\x9b");
+  
   return(0);
 }
