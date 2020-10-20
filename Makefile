@@ -11,6 +11,7 @@
 all mostlyclean clean install zip zap:
 	@$(MAKE) -C fconfig   --no-print-directory $@	
 	@$(MAKE) -C feject    --no-print-directory $@
+        @$(MAKE) -C fesclk    --no-print-directory $@
 	@$(MAKE) -C fhost     --no-print-directory $@
 	@$(MAKE) -C finfo     --no-print-directory $@
 	@$(MAKE) -C fcd       --no-print-directory $@
@@ -39,6 +40,7 @@ dist: all
 	mkdir -p dist
 	cp fconfig/fconfig.com dist/
 	cp feject/feject.com dist/
+	cp fesclk/fesclk.com dist/
 	cp fhost/fhost.com dist/
 	cp finfo/finfo.com dist/
 	cp fcd/fcd.com dist/
