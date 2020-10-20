@@ -4,7 +4,7 @@
  * fesclk - Set SIO Clock rate to <kHz>
  *
  * usage:
- *  fesclk <rate>
+ *  fesclk <kHz>
  *
  * Author: Thomas Cherryhomes
  *  <thom.cherryhomes@gmail.com>
@@ -26,7 +26,7 @@ unsigned short kHz;
 /**
  * SIO command to set R: listening kHz
  */
-unsigned char fesclk(unsigned short rate)
+unsigned char fesclk(unsigned short kHz)
 {
   OS.dcb.ddevic=0x70;
   OS.dcb.dunit=1;
@@ -35,7 +35,7 @@ unsigned char fesclk(unsigned short rate)
   OS.dcb.dbuf=NULL;
   OS.dcb.dtimlo=0x01;
   OS.dcb.dbyt=0;
-  OS.dcb.daux=rate;
+  OS.dcb.daux=kHz;
 
   siov();
 
@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
     }
   else
     {
-      itoa(rate,ratestr,10);
+      itoa(kHz,ratestr,10);
       print("SETTING CLOCK TO ");
       print(ratestr);
       print(" kHz.\x9b\x9b");
