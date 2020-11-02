@@ -35,7 +35,8 @@ all mostlyclean clean install zip zap:
 	@$(MAKE) -C nrmdir    --no-print-directory $@
 	@$(MAKE) -C ntrans    --no-print-directory $@
 	@$(MAKE) -C rbaudlok  --no-print-directory $@
-#	@$(MAKE) -C rulisten  --no-print-directory $@
+	@$(MAKE) -C rsniff    --no-print-directory $@
+
 dist: all
 	mkdir -p dist
 	cp fconfig/fconfig.com dist/
@@ -64,5 +65,6 @@ dist: all
 	cp ntrans/ntrans.com dist/
 	cp nren/nren.com dist/
 	cp rbaudlok/rbaudlok.com dist/
+	cp rsniff/rsniff.com dist/
 	cp -ax doc/* dist/ 
 	dir2atr 720 fnc-tools.atr dist/
