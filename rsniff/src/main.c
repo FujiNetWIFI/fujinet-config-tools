@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
       enable=atoi(buf);
     }
   
-  err=listen_enable(enable);
+  err=dump_enable(enable);
     
   return(err);
 }
