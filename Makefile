@@ -39,6 +39,7 @@ all mostlyclean clean install zip zap:
 
 dist: all
 	mkdir -p dist
+	mkdir -p dist-doc
 	cp fconfig/fconfig.com dist/
 	cp feject/feject.com dist/
 	cp fesclk/fesclk.com dist/
@@ -66,5 +67,6 @@ dist: all
 	cp nren/nren.com dist/
 	cp rbaudlok/rbaudlok.com dist/
 	cp rsniff/rsniff.com dist/
-	cp -ax doc/* dist/ 
+	cp -ax doc/* dist-doc/ 
 	dir2atr 720 fnc-tools.atr dist/
+	dir2atr 720 fnc-tools-doc.atr dist-doc/
