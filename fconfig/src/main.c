@@ -42,6 +42,17 @@ union
 } adapterConfig;
 
 /**
+ * Special hex output of numbers under 16, e.g. 9 -> 09, 10 -> 0A
+ */
+void itoa_hex(int val, char *buf)
+{
+  if (val < 16) {
+    *(buf++) = '0';
+  }
+  itoa(val, buf, 16);
+}
+
+/**
  * Read Device Slots
  */
 void adapter_config(void)
@@ -90,22 +101,22 @@ void print_mac(unsigned char* mac)
 {
   unsigned char tmp[3];
 
-  itoa(mac[0],tmp,16);
+  itoa_hex(mac[0],tmp);
   print(tmp);
   print(":");
-  itoa(mac[1],tmp,16);
+  itoa_hex(mac[1],tmp);
   print(tmp);
   print(":");
-  itoa(mac[2],tmp,16);
+  itoa_hex(mac[2],tmp);
   print(tmp);
   print(":");
-  itoa(mac[3],tmp,16);
+  itoa_hex(mac[3],tmp);
   print(tmp);
   print(":");
-  itoa(mac[4],tmp,16);
+  itoa_hex(mac[4],tmp);
   print(tmp);
   print(":");
-  itoa(mac[5],tmp,16);
+  itoa_hex(mac[5],tmp);
   print(tmp);
 }
 
@@ -148,17 +159,18 @@ int main(void)
 
   print("    MAC Address: ");
   print_mac(adapterConfig.macAddress);
+  print("\x9b");
 
-  print("              BSSID: ");
+  print("          BSSID: ");
   print_mac(adapterConfig.bssid);
+  print("\x9b");
 
-  print("    FCONFIG Version: ");
+  print("FCONFIG Version: ");
   print(FCONFIG_VERSION_FULL);
   print("\x9b");
 
   print("  Fuji Firmware: ");
   print(adapterConfig.firmware);
-
   print("\x9b");
 
   if (_dos_type==MYDOS)
