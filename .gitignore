@@ -8,5 +8,8 @@ obj/
 *.map
 *.com
 
+# IntelliJ project dir
+.idea/
+
 # Don't ignore .COM files in the dist folder
 !dist/*.com
