@@ -70,8 +70,9 @@ void remount_all(void)
   
   for (c=0;c<8;c++)
     {
-      if (hostSlots.host[c][0]!=0x00)
+      if (deviceSlots.slot[c].hostSlot!=0xFF)
 	{
+	  // Mount host slot
 	  OS.dcb.ddevic=0x70;
 	  OS.dcb.dunit=1;
 	  OS.dcb.dcomnd=0xF9;
@@ -79,15 +80,10 @@ void remount_all(void)
 	  OS.dcb.dbuf=NULL;
 	  OS.dcb.dtimlo=0x01;
 	  OS.dcb.dbyt=0;
-	  OS.dcb.daux=c;
+	  OS.dcb.daux=deviceSlots.slot[c].hostSlot;
 	  siov();
-	}
-    }
 
-  for (c=0;c<8;c++)
-    {
-      if (deviceSlots.slot[c].hostSlot!=0xFF)
-	{
+	  // Mount device slot
 	  OS.dcb.ddevic=0x70;
 	  OS.dcb.dunit=1;
 	  OS.dcb.dcomnd=0xF8;
