@@ -1,10 +1,10 @@
 /**
  * FujiNet Tools for CLI
  *
- * rautoans - lock baud rate.
+ * rautoans - set auto answer
  *
  * usage:
- *  rautoans <port#>
+ *  rautoans <0|1>
  *
  * Author: Thomas Cherryhomes
  *  <thom.cherryhomes@gmail.com>
@@ -25,13 +25,13 @@ unsigned char newBaud=0;
 unsigned char baudLock=0xFF;
 
 /**
- * SIO command to set baud lock.
+ * SIO command to set auto ans.
  */
-unsigned char baud_lock(unsigned char l)
+unsigned char auto_ans(unsigned char l)
 {
   OS.dcb.ddevic=0x50;
   OS.dcb.dunit=1;
-  OS.dcb.dcomnd='N';
+  OS.dcb.dcomnd='O';
   OS.dcb.dstats=0x00;
   OS.dcb.dbuf=NULL;
   OS.dcb.dtimlo=0x01;
@@ -48,77 +48,13 @@ unsigned char baud_lock(unsigned char l)
 }
 
 /**
- * SIO command to configure baud rate
- */
-unsigned char configure(unsigned char b)
-{
-  OS.dcb.ddevic=0x50;
-  OS.dcb.dunit=1;
-  OS.dcb.dcomnd='B';
-  OS.dcb.dstats=0x00;
-  OS.dcb.dbuf=NULL;
-  OS.dcb.dtimlo=0x01;
-  OS.dcb.dbyt=0;
-  OS.dcb.daux1=b;
-
-  siov();
-
-  if (OS.dcb.dstats!=1)
-    err_sio();
-
-  return OS.dcb.dstats;
-}
-
-
-/**
  * show options
  */
 void opts(char* argv[])
 {
   print(argv[0]);
-  print(" <baud|UNLOCK>\x9b\x9b");
-  print("Values: either Unlock, or one of:\x9b");
-  print("300, 1200, 2400, 4800, 9600, 19200\x9b");
-}
-
-/**
- * Parse option
- */
-void parseopt(char* o)
-{  
-  // param was baud rate
-  switch (o[0])
-    {
-    case '0': // No baud change
-      break;
-    case '3': // 300
-      newBaud=0x08;
-      break;
-    case '6': // 600
-      newBaud=0x09;
-      break;
-    case '1': // 1200 or 19200
-      newBaud=(o[1]==2 ? 0x0a : 0x0f);
-      break;
-    case '2': // 2400
-      newBaud=0x0c;
-      break;
-    case '4': // 4800
-      newBaud=0x0d;
-      break;
-    case '9': // 9600
-      newBaud=0x0f;
-      break;
-    case 'U': // UNLOCK
-      newBaud=baudLock=0;
-      break;
-    case 0x9B: // <RETURN>
-      newBaud=0;
-      break;
-    default:
-      newBaud=0xFF; // Invalid value.
-      break;
-    }
+  print(" <0|1>\x9b\x9b");
+  print(" 0=disable, 1=enable\x9b");
 }
 
 /**
@@ -127,35 +63,29 @@ void parseopt(char* o)
 int main(int argc, char* argv[])
 {
   unsigned char err=0;
+  unsigned char o=0;
   
   OS.lmargn=2;
   
   if (_is_cmdline_dos())
     {
-      parseopt(argv[1]);
-      if (newBaud == 0xFF)
-	{
-	  opts(argv);
-	  return(1);
-	}
+      o=atoi(argv[1]);
     }
   else
     {
       // DOS 2.0/MYDOS
       print("\x9b");
 
-      while (newBaud==0xFF)
+      print("AUTO ANSWER--0=DIS, 1=ENABLE? ");
+      get_line(buf,sizeof(buf));
+      for (i=0;i<sizeof(buf);i++)
 	{
-	  print("BAUD RATE, UNLOCK OR \xD2\xC5\xD4\xD5\xD2\xCE? ");
-	  get_line(buf,sizeof(buf));
-	  parseopt(buf);
+	  if (buf[i]==0x9B)
+	    buf[i]=0x00;
 	}
     }
-
-  if (newBaud!=0)
-    configure(newBaud);
-
-  baud_lock(baudLock);
+  
+  auto_answer(o);
   
   if (!_is_cmdline_dos())
     {
