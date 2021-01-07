@@ -34,6 +34,7 @@ all mostlyclean clean install zip zap:
 	@$(MAKE) -C nmkdir    --no-print-directory $@
 	@$(MAKE) -C nrmdir    --no-print-directory $@
 	@$(MAKE) -C ntrans    --no-print-directory $@
+	@$(MAKE) -C rautoans  --no-print-directory $@
 	@$(MAKE) -C rbaudlok  --no-print-directory $@
 	@$(MAKE) -C rsniff    --no-print-directory $@
 
@@ -65,6 +66,7 @@ dist: all
 	cp nrmdir/nrmdir.com dist/
 	cp ntrans/ntrans.com dist/
 	cp nren/nren.com dist/
+	cp rautoans/rautoans.com dist/
 	cp rbaudlok/rbaudlok.com dist/
 	cp rsniff/rsniff.com dist/
 	cp -ax doc/* dist-doc/ 

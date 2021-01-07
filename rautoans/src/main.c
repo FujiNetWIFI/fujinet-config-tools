@@ -64,6 +64,7 @@ int main(int argc, char* argv[])
 {
   unsigned char err=0;
   unsigned char o=0;
+  unsigned char i=0;
   
   OS.lmargn=2;
   
@@ -85,7 +86,7 @@ int main(int argc, char* argv[])
 	}
     }
   
-  auto_answer(o);
+  auto_ans(o);
   
   if (!_is_cmdline_dos())
     {
