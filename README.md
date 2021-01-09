@@ -43,3 +43,5 @@ reappears, you'll be prompted to press [Return] to proceed.
 |RBAUDLOK.COM|Lock baud rate.|RBAUDLOK \<baud\|UNLOCK\>|
 |RLISTEN.COM|Listen for TCP connection for R:|RLISTEN \<port#\>|
 |RSNIFF.COM|Enable/disable modem sniffer|RSNIFF \<0\|1\>|
+
+Documentation for each tool is available in the `fnc-tools-doc.atr` disk image.
