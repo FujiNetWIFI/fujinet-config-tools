@@ -9,6 +9,7 @@ A set of programs to aid in configuring the FujiNet device from the Atari from D
 |FCD|Set Fujinet Host and Path|FCD \<hs#\> \[directory\]|
 |FCONFIG|Shows Adapter Configuration|FCONFIG|
 |FEJECT|Eject disk image in specified slot|FEJECT \<ds#\>|
+|FESCLK|Set SIO Clock rate|FESCLK \<kHz\>|
 |FHOST|Edit or clear a host slot.|FHOST \<hs#\> [hostname]|
 |FINFO|Show disk geometry for a disk slot.|FINFO \<ds#\>|
 |FLD|Display Device Slots|FLD|
@@ -31,5 +32,7 @@ A set of programs to aid in configuring the FujiNet device from the Atari from D
 |NRMDIR|Remove Directory on Network.|NRMDIR \<directory\>|
 |NTRANS|Set CR/LF Translation Mode for N:.|NTRANS \<Nx:\> \<mode\>|
 |**Fujinet R: Commands**|||
+|RAUTOANS|Set auto-answer|RAUTOANS \<0\|1\>|
 |RBAUDLOK|Lock baud rate.|RBAUDLOK \<baud\|UNLOCK\>|
 |RLISTEN|Listen for TCP connection for R:|RLISTEN \<port#\>|
+|RSNIFF|Enable/disable modem sniffer|RSNIFF \<0\|1\>|
