@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
 	goto interactive;
       else
 	{
-	  for (i=1;i<=argc;i++)
+	  for (i=1;i<argc;i++)
 	    {
 	      strcat(buf,argv[i]);
 	      if (i<argc-1)
