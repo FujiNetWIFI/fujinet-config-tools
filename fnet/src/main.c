@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
 	  exit(1);
 	}
 
-      for (i=1;i<=argc;i++)
+      for (i=1;i<argc;i++)
 	{
 	  strcat(buf,argv[i]);
 	  if (i<argc-1)
