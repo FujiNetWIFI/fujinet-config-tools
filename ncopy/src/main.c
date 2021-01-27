@@ -291,5 +291,11 @@ int main(int argc, char* argv[])
     return copy_n_to_d();
   else if (valid_network_device(sourceDeviceSpec[0]) && valid_network_device(destDeviceSpec[0]))
     return copy_n_to_n();
+
+  if (!_is_cmdline_dos())
+    {
+      print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
+      get_line(buf,sizeof(buf));
+    }
   
 }

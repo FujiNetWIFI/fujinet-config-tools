@@ -200,5 +200,11 @@ int main(int argc, char* argv[])
       print(": NOT IN USE\x9b");
     }
 
+  if (!_is_cmdline_dos())
+    {
+      print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
+      get_line(buf,sizeof(buf));
+    }
+  
   return(0);
 }

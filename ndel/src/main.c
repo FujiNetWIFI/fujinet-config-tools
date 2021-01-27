@@ -83,6 +83,12 @@ int main(int argc, char* argv[])
   else if (buf[2]==':')
     u=buf[1]-0x30;
 
+  if (!_is_cmdline_dos())
+    {
+      print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
+      get_line(buf,sizeof(buf));
+    }
+  
   ndel(u);
   
   return(0);
