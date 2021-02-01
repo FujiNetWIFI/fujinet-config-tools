@@ -19,6 +19,7 @@
 #include "err.h"
 
 unsigned char i=0;
+char buf[8];
 
 void nlogin(unsigned char unit, char *login, char *password)
 {

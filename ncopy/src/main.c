@@ -39,6 +39,7 @@ char errnum[4];
 char* pToken;
 char* pWildcardStar, *pWildcardChar;
 unsigned char sourceUnit=1, destUnit=1;
+char buf[8];
 
 void print_error(void)
 {
