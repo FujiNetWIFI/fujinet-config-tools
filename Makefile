@@ -9,7 +9,8 @@
 .SUFFIXES:
 
 all mostlyclean clean install zip zap:
-	@$(MAKE) -C fconfig   --no-print-directory $@	
+	@$(MAKE) -C fconfig   --no-print-directory $@
+	@$(MAKE) -C fcopy     --no-print-directory $@
 	@$(MAKE) -C feject    --no-print-directory $@
 	@$(MAKE) -C fesclk    --no-print-directory $@
 	@$(MAKE) -C fhost     --no-print-directory $@
@@ -43,6 +44,7 @@ dist: all
 	mkdir -p dist
 	mkdir -p dist-doc
 	cp fconfig/fconfig.com dist/
+	cp fcopy/fcopy.com dist/
 	cp feject/feject.com dist/
 	cp fesclk/fesclk.com dist/
 	cp fhost/fhost.com dist/

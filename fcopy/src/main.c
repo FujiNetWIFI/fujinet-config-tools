@@ -1,7 +1,7 @@
 /**
  * Network Testing tools
  *
- * copy - set FUJI HOST SLOT prefix.
+ * copy - Copy file from one slot to another.
  *
  * Author: Thomas Cherryhomes
  *  <thom.cherryhomes@gmail.com>
@@ -13,24 +13,29 @@
 #include <atari.h>
 #include <string.h>
 #include <stdlib.h>
-#include <peekpoke.h>
+#include <stdbool.h>
 #include "sio.h"
 #include "conio.h"
 #include "err.h"
 
-unsigned char buf[256];
+unsigned char source_slot, dest_slot;
+unsigned char linebuf[128];
+unsigned char source_buf[128];
+unsigned char dest_buf[128];
+unsigned char copy_buf[256];
 unsigned char i=0;
 
-void copy(unsigned char hs, const char* prefix)
+void copy()
 {
   OS.dcb.ddevic=0x70;
   OS.dcb.dunit=1;
-  OS.dcb.dcomnd=0xE1;
+  OS.dcb.dcomnd=0xD8;
   OS.dcb.dstats=0x80;
-  OS.dcb.dbuf=prefix;
-  OS.dcb.dtimlo=0x1f;
+  OS.dcb.dbuf=copy_buf;
+  OS.dcb.dtimlo=0xfe;
   OS.dcb.dbyt=256;
-  OS.dcb.daux1=hs;
+  OS.dcb.daux1=source_slot;
+  OS.dcb.daux2=dest_slot;
   siov();
 
   if (OS.dcb.dstats!=1)
@@ -40,47 +45,92 @@ void copy(unsigned char hs, const char* prefix)
     }
 }
 
+bool parse_cmdline(char* argv[])
+{
+  char *p;
+  unsigned char i=1;
+  
+  while (argv[i]!=NULL)
+    {
+      strcat(linebuf, argv[i]);
+      if (argv[i+1] != NULL)
+	strcat(linebuf, " ");
+    }
+
+  p = strtok(linebuf, ",");
+  
+  if (p == NULL)
+    return false;
+  else
+    source_slot = atoi(p);
+  
+  p=strtok(NULL,",");
+
+  if (p == NULL)
+    return false;
+  else
+    strcpy(source_buf,p);
+  
+  p=strtok(NULL,",");
+
+  if (p == NULL)
+    return false;
+  else
+    dest_slot = atoi(p);
+
+  p=strtok(NULL,",");
+
+  if (p == NULL)
+    return false;
+  else
+    strcpy(dest_buf,p);
+
+  return true;
+}
+
 int main(int argc, char* argv[])
 {
-  unsigned char i;
-  char *tokens[2];
-  unsigned char hs;
+  char tmp[4];
   
   OS.lmargn=2;
-  
+
   if (_is_cmdline_dos())
     {
-      for (i=1;i<argc;i++)
+      if (argc<2)
 	{
-	  strcat(buf,argv[i]);
-	  if (i<argc-1)
-	    strcat(buf," ");
+	  print("fcopy <src slot>,<path>,<dst slot>,<path>\x9b");
+	  return 1;
+	}
+      else
+	{
+	  if (parse_cmdline(argv) == false)
+	    return 1;
 	}
     }
   else
     {
-      // DOS 2.0/MYDOS
-      print("HOST PREFIX--HOST SLOT, PATH?\x9b");
-      get_line(buf,240);
+      // TODO: Add validation.
+      print("FUJI COPY--SOURCE HOST SLOT?\x9b");
+      get_line(tmp,4);
+      source_slot = atoi(tmp);
+      print("\x9bSOURCE PATH?\x9b");
+      get_line(source_buf,128);
+      print("\x9b" "DEST HOST SLOT?\x9b");
+      get_line(tmp,4);
+      dest_slot = atoi(tmp);
+      print("\x9b" "DEST PATH?\x9b");
+      get_line(dest_buf,128);
     }
 
-  tokens[0]=strtok(buf,",");
-  tokens[1]=strtok(NULL,",");
+  strcat(copy_buf,source_buf);
+  strcat(copy_buf,"|");
+  strcat(copy_buf,dest_buf);
 
-  hs=atoi(tokens[0]);
+  print("Copying...");
   
-  if (tokens[0]==NULL)
-    {
-      print("HOST SLOT REQUIRED\x9b");
-      return(1);
-    }
-  else if (hs<1 || hs>8)
-    {
-      print("INVALID HOST SLOT NUMBER\x9b");
-      return(1);
-    }
+  copy();
 
-  copy(hs-1,tokens[1]);
+  print("\x9b");
   
-  return(0);
+  return 0;
 }
