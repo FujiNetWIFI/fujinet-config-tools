@@ -29,6 +29,14 @@ void get(unsigned char channel, char* buf, unsigned short len)
   dciov(channel);
 }
 
+void getrec(unsigned char channel, char* buf, unsigned short len)
+{
+  OS.iocb[channel].buffer=buf;
+  OS.iocb[channel].buflen=len;
+  OS.iocb[channel].command=IOCB_GETREC;
+  dciov(channel);
+}
+
 void put(unsigned char channel, char* buf, unsigned short len)
 {
   OS.iocb[channel].buffer=buf;
