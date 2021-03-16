@@ -21,7 +21,7 @@
 #include "conio.h"
 #include "err.h"
 
-unsigned char buf[128];
+unsigned char buf[256];
 
 union
 {
@@ -176,7 +176,8 @@ int main(int argc, char* argv[])
   char* path_pos=NULL;
   char* filter_pos=NULL;
   unsigned char i;
-  
+  unsigned short dir_pos = 0;
+ 
   memset(buf,0,sizeof(buf));
   
   OS.lmargn=2;
@@ -204,14 +205,16 @@ int main(int argc, char* argv[])
       get_line(buf,sizeof(buf));
     }
 
-  slot = buf[0]-0x30;
+  slot = buf[0];
 
-  if (slot<1 || slot>8)
+  if ((slot<0x31) || (slot>0x38))
     {
       print("INVALID SLOT NUMBER\x9b");
       return 1;
     }
 
+  slot-=0x31;
+  
   comma_pos=strchr(buf,',');
 
   if (comma_pos == NULL)
@@ -222,37 +225,17 @@ int main(int argc, char* argv[])
 
   path_pos=comma_pos+1;
 
-  while (*path_pos == ' ' || *path_pos != 0x00)
-    {
-      path_pos++;
-    }
-
   // Seperate filter from path
   filter_pos = strrchr(buf,'/');
-
-  // Add * if no filter present
-  if (filter_pos == NULL)
-    {
-      buf[strlen(buf)] = 0x00;
-      buf[strlen(buf)+1] = '*';
-    }
-  else
-    {
-      // Replace last / with NULL seperator.
-      *filter_pos = 0x00;
-    }
-
-  // Decrement slot for 0 based index
-  slot--;
-
+  *filter_pos = 0x00;
+  filter_pos++;
+  
   host_read();
   host_mount(slot);
   directory_open(slot,path_pos);
-
+  
   while (buf[0]!=0x7F)
-    {
-      unsigned short dir_pos=0;
-      
+    {      
       memset(buf,0,sizeof(buf));
       buf[0]=0x7f;
       
@@ -277,5 +260,4 @@ int main(int argc, char* argv[])
     }
 
   directory_close(slot);
-  
 }
