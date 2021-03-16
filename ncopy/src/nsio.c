@@ -19,7 +19,7 @@
 #include "err.h"
 #include "nsio.h"
 
-void nopen(unsigned char unit, char* buf, unsigned char aux1)
+unsigned char nopen(unsigned char unit, char* buf, unsigned char aux1)
 {
   OS.dcb.ddevic=0x71;
   OS.dcb.dunit=unit;
@@ -30,10 +30,10 @@ void nopen(unsigned char unit, char* buf, unsigned char aux1)
   OS.dcb.dbyt=256;
   OS.dcb.daux1=aux1;
   OS.dcb.daux2=0; // NO TRANSLATION!
-  siov();
+  return siov();
 }
 
-void nclose(unsigned char unit)
+unsigned char nclose(unsigned char unit)
 {
   OS.dcb.ddevic=0x71;
   OS.dcb.dunit=unit;
@@ -44,10 +44,10 @@ void nclose(unsigned char unit)
   OS.dcb.dbyt=0;
   OS.dcb.daux1=0;
   OS.dcb.daux2=0;
-  siov();
+  return siov();
 }
 
-void nread(unsigned char unit, char* buf, unsigned short len)
+unsigned char nread(unsigned char unit, char* buf, unsigned short len)
 {
   OS.dcb.ddevic=0x71;
   OS.dcb.dunit=unit;
@@ -57,10 +57,10 @@ void nread(unsigned char unit, char* buf, unsigned short len)
   OS.dcb.dtimlo=0x1f;
   OS.dcb.dbyt=len;
   OS.dcb.daux=len;
-  siov();
+  return siov();
 }
 
-void nwrite(unsigned char unit, char* buf, unsigned short len)
+unsigned char nwrite(unsigned char unit, char* buf, unsigned short len)
 {
   OS.dcb.ddevic=0x71;
   OS.dcb.dunit=unit;
@@ -70,10 +70,10 @@ void nwrite(unsigned char unit, char* buf, unsigned short len)
   OS.dcb.dtimlo=0x1f;
   OS.dcb.dbyt=len;
   OS.dcb.daux=len;
-  siov();
+  return siov();
 }
 
-void nstatus(unsigned char unit)
+unsigned char nstatus(unsigned char unit)
 {
   OS.dcb.ddevic=0x71;
   OS.dcb.dunit=unit;
@@ -84,5 +84,5 @@ void nstatus(unsigned char unit)
   OS.dcb.dbyt=4;
   OS.dcb.daux1=0;
   OS.dcb.daux2=0;
-  siov();
+  return siov();
 }

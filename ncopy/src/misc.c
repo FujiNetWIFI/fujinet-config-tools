@@ -18,13 +18,11 @@
 #include "misc.h"
 #include "conio.h"
 
-extern char errnum[4];
-extern unsigned char yvar;
-
-void print_error(void)
+void print_error(unsigned char err)
 {
+  unsigned char errnum[4];
   print("ERROR- ");
-  itoa(yvar,errnum,10);
+  itoa(err,errnum,10);
   print(errnum);
   print("\x9b");
 }

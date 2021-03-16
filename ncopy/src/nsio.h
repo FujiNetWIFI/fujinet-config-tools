@@ -13,10 +13,45 @@
 #ifndef NSIO_H
 #define NSIO_H
 
-void nopen(unsigned char unit, char* buf, unsigned char aux1);
-void nclose(unsigned char unit);
-void nread(unsigned char unit, char* buf, unsigned short len);
-void nwrite(unsigned char unit, char* buf, unsigned short len);
-void nstatus(unsigned char unit);
+/**
+ * Open a file on N: device
+ * @param unit the SIO unit number
+ * @param buf the target buffer
+ * @param aux1 the AUX1 value to use on open (read/write)
+ * @return error code
+ */
+unsigned char nopen(unsigned char unit, char* buf, unsigned char aux1);
+
+/**
+ * Close a file on the N: device
+ * @param unit the SIO unit number
+ * @return error code
+ */
+unsigned char nclose(unsigned char unit);
+
+/**
+ * Read requested (aux) number of bytes from N:
+ * @param unit the SIO unit number
+ * @param buf the destination buffer
+ * @param len # of bytes to read
+ * @return error code
+ */
+unsigned char nread(unsigned char unit, char* buf, unsigned short len);
+
+/**
+ * Write requested (aux) number of bytes to N:
+ * @param unit the SIO unit number
+ * @param buf the source buffer
+ * @param len # of bytes to write
+ * @return error code
+ */
+unsigned char nwrite(unsigned char unit, char* buf, unsigned short len);
+
+/**
+ * Get status of Nu: and return in OS.dvstat[]
+ * @param unit the SIO unit number
+ * @return the error code
+ */
+unsigned char nstatus(unsigned char unit);
 
 #endif /* NSIO_H */

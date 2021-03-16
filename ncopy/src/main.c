@@ -27,8 +27,6 @@
 #include "copy_n_to_d.h"
 #include "copy_n_to_n.h"
 
-unsigned char yvar;
-
 unsigned char i;
 unsigned char argbuf[255];
 unsigned char sourceDeviceSpec[255];

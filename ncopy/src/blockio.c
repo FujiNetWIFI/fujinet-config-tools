@@ -6,41 +6,41 @@
 #include "blockio.h"
 #include "cio.h"
 
-void open(unsigned char channel, unsigned char aux1, char* buf, unsigned short len)
+unsigned char open(unsigned char channel, unsigned char aux1, char* buf, unsigned short len)
 {
   OS.iocb[channel].buffer=buf;
   OS.iocb[channel].buflen=len;
   OS.iocb[channel].command=IOCB_OPEN;
   OS.iocb[channel].aux1=aux1;
-  ciov(channel);
+  return ciov(channel);
 }
 
-void close(unsigned char channel)
+unsigned char close(unsigned char channel)
 {
   OS.iocb[channel].command=IOCB_CLOSE;
-  ciov(channel);
+  return ciov(channel);
 }
 
-void get(unsigned char channel, char* buf, unsigned short len)
+unsigned char get(unsigned char channel, char* buf, unsigned short len)
 {
   OS.iocb[channel].buffer=buf;
   OS.iocb[channel].buflen=len;
   OS.iocb[channel].command=IOCB_GETCHR;
-  ciov(channel);
+  return ciov(channel);
 }
 
-void getrec(unsigned char channel, char* buf, unsigned short len)
+unsigned char getrec(unsigned char channel, char* buf, unsigned short len)
 {
   OS.iocb[channel].buffer=buf;
   OS.iocb[channel].buflen=len;
   OS.iocb[channel].command=IOCB_GETREC;
-  ciov(channel);
+  return ciov(channel);
 }
 
-void put(unsigned char channel, char* buf, unsigned short len)
+unsigned char put(unsigned char channel, char* buf, unsigned short len)
 {
   OS.iocb[channel].buffer=buf;
   OS.iocb[channel].buflen=len;
   OS.iocb[channel].command=IOCB_PUTCHR;
-  ciov(channel);
+  return ciov(channel);
 }

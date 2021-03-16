@@ -18,8 +18,9 @@
 
 /**
  * Print error passed by errnum
+ * @param err error number
  */
-void print_error(void);
+void print_error(unsigned char err);
 
 /**
  * Detect wildcard

@@ -20,7 +20,6 @@
 #include "misc.h"
 #include "copy_n_to_n.h"
 
-extern unsigned char yvar;
 extern unsigned char destUnit, sourceUnit;
 extern unsigned char sourceDeviceSpec[255];
 extern unsigned char destDeviceSpec[255];
@@ -29,13 +28,15 @@ extern unsigned char data[16384];
 
 int _copy_n_to_n(void)
 {
+  unsigned char err;
+  
   nopen(sourceUnit,sourceDeviceSpec,4);
 
   if (OS.dcb.dstats!=1)
     {
       nstatus(sourceUnit);
-      yvar=OS.dvstat[3];
-      print_error();
+      err=OS.dvstat[3];
+      print_error(err);
       nclose(sourceUnit);
     }
   
@@ -44,8 +45,8 @@ int _copy_n_to_n(void)
   if (OS.dcb.dstats!=1)
     {
       nstatus(destUnit);
-      yvar=OS.dvstat[3];
-      print_error();
+      err=OS.dvstat[3];
+      print_error(err);
       nclose(sourceUnit);
       nclose(destUnit);
     }
@@ -53,7 +54,7 @@ int _copy_n_to_n(void)
   do
     {
       nstatus(sourceUnit);
-      data_len=OS.dvstat[1]*256+OS.dvstat[0];
+      data_len=(OS.dvstat[1]<<8)+OS.dvstat[0];
 
       if (data_len==0)
 	break;
@@ -62,11 +63,29 @@ int _copy_n_to_n(void)
       if (data_len>sizeof(data))
 	data_len=sizeof(data);
 
-      nread(sourceUnit,data,data_len); // add err chk
-      nwrite(destUnit,data,data_len);
+      err=nread(sourceUnit,data,data_len); // add err chk
+
+      if (err!=1)
+	{
+	  nstatus(sourceUnit);
+	  err=OS.dvstat[3];
+	  print_error(err);
+	  goto nndone;
+	}
+
+      err=nwrite(destUnit,data,data_len);
+
+      if (err!=1)
+	{
+	  nstatus(destUnit);
+	  err=OS.dvstat[3];
+	  print_error(err);
+	  goto nndone;
+	}
       
     } while (data_len>0);  
-  
+
+ nndone:  
   nclose(sourceUnit);
   nclose(destUnit);
   

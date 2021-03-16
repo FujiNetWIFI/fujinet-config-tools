@@ -1,5 +1,5 @@
 /**
  * Function to call sio
+ * @return the SIO error code
  */
-
-void siov();
+unsigned char siov();
