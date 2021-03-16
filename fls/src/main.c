@@ -171,21 +171,22 @@ void opts(char* argv[])
  */
 int main(int argc, char* argv[])
 {
-  unsigned char s=argv[1][0]-0x30;
-  unsigned char sa[2];
+  unsigned char slot=0;
+  char* comma_pos=NULL;
+  char* path_pos=NULL;
+  char* filter_pos=NULL;
+  unsigned char i;
   
-  unsigned char i,j;
-
-  unsigned short pos=0;
+  memset(buf,0,sizeof(buf));
   
   OS.lmargn=2;
-  
+
   if (_is_cmdline_dos())
     {
       if (argc<2)
 	{
 	  opts(argv);
-	  return(1);
+	  return 1;
 	}
       else
 	{
@@ -193,7 +194,7 @@ int main(int argc, char* argv[])
 	    {
 	      strcat(buf,argv[i]);
 	      if (i<argc-1)
-		strcat(buf," ");
+		strcat(buf, " ");
 	    }
 	}
     }
@@ -203,67 +204,64 @@ int main(int argc, char* argv[])
       get_line(buf,sizeof(buf));
     }
 
-  if (buf[0]==0x00)
-    s=1;
+  slot = buf[0]-0x30;
+
+  if (slot<1 || slot>8)
+    {
+      print("INVALID SLOT NUMBER\x9b");
+      return 1;
+    }
+
+  comma_pos=strchr(buf,',');
+
+  if (comma_pos == NULL)
+    {
+      print("NO COMMA.");
+      return 1;
+    }
+
+  path_pos=comma_pos+1;
+
+  while (*path_pos == ' ' || *path_pos != 0x00)
+    {
+      path_pos++;
+    }
+
+  // Seperate filter from path
+  filter_pos = strrchr(buf,'/');
+
+  // Add * if no filter present
+  if (filter_pos == NULL)
+    {
+      buf[strlen(buf)] = 0x00;
+      buf[strlen(buf)+1] = '*';
+    }
   else
-    s=buf[0]-0x30;
-  
-  sa[0]=s+0x30;
+    {
+      // Replace last / with NULL seperator.
+      *filter_pos = 0x00;
+    }
 
-  if (s<1 || s>8)
-    {
-      print("INVALID SLOT NUMBER.\x9b");
-      return(1);
-    }
-  
-  // Check for first comma
-  for (i=0;i<strlen(buf);i++)
-    {
-      if (buf[i]==',')
-	{
-	  i++;
-	  break;
-	}	  
-    }
-  
-  // Trim any whitespace
-  while (buf[i]==' ')
-    i++;
-  
-  j=i; // Store path cursor for later.
-  
-  // Check for colon for filter.
-  for (i=i;i<strlen(buf);i++)
-    {
-      if (buf[i]==':')
-	{
-	  buf[i]=0x00; // NULL separator required for pattern.
-	  break;
-	}
-    }
-  
-  s-=1;
-  
-  // Read in host and device slots from FujiNet
+  // Decrement slot for 0 based index
+  slot--;
+
   host_read();
+  host_mount(slot);
+  directory_open(slot,path_pos);
 
-  // Mount host for reading
-  host_mount(s);
-
-  directory_open(s,&buf[j]);
-
-  // Read directory
   while (buf[0]!=0x7F)
     {
+      unsigned short dir_pos=0;
+      
       memset(buf,0,sizeof(buf));
       buf[0]=0x7f;
-
-      directory_read(s,36); // show 36 chars max
-
+      
+      directory_read(slot,36); // show 36 chars max
+      
       if (strlen(buf)==35)
 	{
-	  set_directory_position(pos);
-	  directory_read(s,128);
+	  set_directory_position(dir_pos);
+	  directory_read(slot,128);
 	}
       
       if (buf[0]=='.')
@@ -275,18 +273,9 @@ int main(int argc, char* argv[])
 	  print(buf);
 	  print("\x9b");
 	}
-      pos++;
+      dir_pos++;
     }
 
-  directory_close(s);
-
-  print("\x9b");
-
-  if (!_is_cmdline_dos())
-    {
-      print("PRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
-      get_line(buf,sizeof(buf));
-    }
-
-  return(0);
+  directory_close(slot);
+  
 }
