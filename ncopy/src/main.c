@@ -21,9 +21,11 @@
 #include "err.h"
 #include "nsio.h"
 #include "blockio.h"
+#include "copy_d_to_n.h"
+#include "misc.h"
 
-#define D_DEVICE_DATA      1
-#define D_DEVICE_DIRECTORY 2
+#define D_DEVICE_DATA      2
+#define D_DEVICE_DIRECTORY 3
 
 unsigned char yvar;
 
@@ -40,21 +42,6 @@ char* pToken;
 char* pWildcardStar, *pWildcardChar;
 unsigned char sourceUnit=1, destUnit=1;
 char buf[8];
-
-void print_error(void)
-{
-  print("ERROR- ");
-  itoa(yvar,errnum,10);
-  print(errnum);
-  print("\x9b");
-}
-
-bool detect_wildcard(char* buf)
-{
-  pWildcardStar=strchr(buf, '*');
-  pWildcardChar=strchr(buf, '?');
-  return ((pWildcardStar!=NULL) || (pWildcardChar!=NULL));
-}
 
 bool parse_filespec(char* buf)
 {
@@ -100,50 +87,6 @@ bool parse_filespec(char* buf)
   print(destDeviceSpec);
   
   return true;
-}
-
-int _copy_d_to_n(void)
-{
-  open(D_DEVICE_DATA,4,sourceDeviceSpec,strlen(sourceDeviceSpec));
-
-  if (yvar!=1)
-    {
-      print_error();
-      close(D_DEVICE_DATA);
-      return yvar;
-    }
-
-  nopen(destUnit,destDeviceSpec,8);
-
-  if (OS.dcb.dstats!=1)
-    {
-      nstatus(destUnit);
-      yvar=OS.dvstat[3];
-      print_error();
-      close(D_DEVICE_DATA);
-      nclose(destUnit);
-    }
-
-  while (yvar==1)
-    {
-      get(D_DEVICE_DATA,data,sizeof(data));
-
-      data_len=OS.iocb[D_DEVICE_DATA].buflen;
-
-      nwrite(destUnit,data,data_len);
-      data_len-=data_len;	  
-    }
-
-  close(D_DEVICE_DATA);
-  nclose(destUnit);
-  
-  return 0;
-}
-
-int copy_d_to_n(void)
-{
-  if (detect_wildcard(sourceDeviceSpec)==false)
-    return _copy_d_to_n();
 }
 
 int _copy_n_to_d(void)
