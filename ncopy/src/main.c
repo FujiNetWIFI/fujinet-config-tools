@@ -24,6 +24,7 @@
 #include "misc.h"
 #include "parse_filespec.h"
 #include "copy_d_to_n.h"
+#include "copy_n_to_d.h"
 
 #define D_DEVICE_DATA      2
 #define D_DEVICE_DIRECTORY 3
@@ -43,56 +44,6 @@ char* pToken;
 char* pWildcardStar, *pWildcardChar;
 unsigned char sourceUnit=1, destUnit=1;
 char buf[8];
-
-int _copy_n_to_d(void)
-{
-  nopen(sourceUnit,sourceDeviceSpec,4);
-
-  if (OS.dcb.dstats!=1)
-    {
-      nstatus(destUnit);
-      yvar=OS.dvstat[3];
-      print_error();
-      nclose(destUnit);
-    }
-
-  open(D_DEVICE_DATA,8,destDeviceSpec,strlen(destDeviceSpec));
-
-  if (yvar!=1)
-    {
-      print_error();
-      close(D_DEVICE_DATA);
-      return yvar;
-    }  
-
-  do
-    {
-      nstatus(sourceUnit);
-      data_len=OS.dvstat[1]*256+OS.dvstat[0];
-
-      if (data_len==0)
-	break;
-      
-      // Be sure not to overflow buffer!
-      if (data_len>sizeof(data))
-	data_len=sizeof(data);
-
-      nread(sourceUnit,data,data_len); // add err chk
-
-      put(D_DEVICE_DATA,data,data_len);
-      
-    } while (data_len>0);
-
-  nclose(sourceUnit);
-  close(D_DEVICE_DATA);
-  return 0;
-}
-
-int copy_n_to_d(void)
-{
-  if (detect_wildcard(sourceDeviceSpec)==false)
-    return _copy_n_to_d();
-}
 
 int _copy_n_to_n(void)
 {
