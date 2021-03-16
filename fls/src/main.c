@@ -202,14 +202,14 @@ int main(int argc, char* argv[])
   else // DOS 2.0
     {
       print("HOST DIRECTORY--HOST SLOT, PATH?\x9b");
-      get_line(buf,sizeof(buf));
+      get_line(buf,128);
     }
 
   slot = buf[0];
 
   if ((slot<0x31) || (slot>0x38))
     {
-      print("INVALID SLOT NUMBER\x9b");
+      print("INVALID SLOT NUMBER\x9b"); 
       return 1;
     }
 
@@ -219,7 +219,7 @@ int main(int argc, char* argv[])
 
   if (comma_pos == NULL)
     {
-      print("NO COMMA.");
+      print("NO COMMA.\x9b");
       return 1;
     }
 
