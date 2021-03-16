@@ -38,3 +38,13 @@ bool detect_wildcard(char* buf)
   pWildcardChar=strchr(buf, '?');
   return ((pWildcardStar!=NULL) || (pWildcardChar!=NULL));
 }
+
+bool valid_network_device(char d)
+{
+  return (d=='N');
+}
+
+bool valid_cio_device(char d)
+{
+  return (d!='N' && (d>0x40 && d<0x5B));
+}

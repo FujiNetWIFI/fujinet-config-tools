@@ -28,4 +28,18 @@ void print_error(void);
  */
 bool detect_wildcard(char* buf);
 
+/**
+ * Return TRUE if valid network device
+ * @param d device character
+ * @return true f 'N'
+ */
+bool valid_network_device(char d);
+
+/**
+ * Return TRUE if valid CIO device
+ * @param d device character
+ * @return true if letter that isn't 'N'
+ */
+bool valid_cio_device(char d);
+
 #endif /* MISC_H */

@@ -146,16 +146,6 @@ int copy_n_to_n(void)
     return _copy_n_to_n();
 }
 
-bool valid_network_device(char d)
-{
-  return (d=='N');
-}
-
-bool valid_cio_device(char d)
-{
-  return (d!='N' && (d>0x40 && d<0x5B));
-}
-
 int main(int argc, char* argv[])
 {
   OS.lmargn=2;
