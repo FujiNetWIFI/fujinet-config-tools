@@ -21,8 +21,9 @@
 #include "err.h"
 #include "nsio.h"
 #include "blockio.h"
-#include "copy_d_to_n.h"
 #include "misc.h"
+#include "parse_filespec.h"
+#include "copy_d_to_n.h"
 
 #define D_DEVICE_DATA      2
 #define D_DEVICE_DIRECTORY 3
@@ -42,52 +43,6 @@ char* pToken;
 char* pWildcardStar, *pWildcardChar;
 unsigned char sourceUnit=1, destUnit=1;
 char buf[8];
-
-bool parse_filespec(char* buf)
-{
-  // Find comma.
-  pToken=strtok(buf,",");
-  
-  if (pToken==NULL)
-    {
-      print("NO COMMA\x9b");
-      return false;
-    }
-
-  strcpy(sourceDeviceSpec,pToken);
-  pToken=strtok(NULL,",");
-
-  while (*pToken==0x20) { pToken++; }
-  
-  strcpy(destDeviceSpec,pToken);
-
-  // Put EOLs on the end.
-  sourceDeviceSpec[strlen(sourceDeviceSpec)]=0x9B;
-  destDeviceSpec[strlen(destDeviceSpec)]=0x9B;
-
-  // Check for valid device name chars
-  if (sourceDeviceSpec[0]<0x41 || sourceDeviceSpec[0]>0x5A)
-    return false;
-  else if (destDeviceSpec[0]<0x41 || destDeviceSpec[0]>0x5A)
-    return false;
-
-  // Check for proper colon placement
-  if (sourceDeviceSpec[1]!=':' && sourceDeviceSpec[2]!=':')
-    return false;
-  else if (destDeviceSpec[1]!=':' && destDeviceSpec[2]!=':')
-    return false;
-
-  // Try to assign unit numbers.
-  if (sourceDeviceSpec[1] != ':')
-    sourceUnit=sourceDeviceSpec[1]-0x30;
-  if (destDeviceSpec[1] != ':')
-    destUnit=destDeviceSpec[1]-0x30;
-
-  print(sourceDeviceSpec);
-  print(destDeviceSpec);
-  
-  return true;
-}
 
 int _copy_n_to_d(void)
 {
