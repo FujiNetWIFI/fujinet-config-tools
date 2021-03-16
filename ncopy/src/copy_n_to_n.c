@@ -18,16 +18,16 @@
 #include "nsio.h"
 #include "blockio.h"
 #include "misc.h"
-#include "copy_n_to_d.h"
+#include "copy_n_to_n.h"
 
 extern unsigned char yvar;
-extern unsigned char sourceUnit;
+extern unsigned char destUnit, sourceUnit;
 extern unsigned char sourceDeviceSpec[255];
 extern unsigned char destDeviceSpec[255];
 extern unsigned short data_len;
 extern unsigned char data[16384];
 
-int _copy_n_to_d(void)
+int _copy_n_to_n(void)
 {
   nopen(sourceUnit,sourceDeviceSpec,4);
 
@@ -38,15 +38,17 @@ int _copy_n_to_d(void)
       print_error();
       nclose(sourceUnit);
     }
+  
+  nopen(destUnit,destDeviceSpec,8);
 
-  open(D_DEVICE_DATA,8,destDeviceSpec,strlen(destDeviceSpec));
-
-  if (yvar!=1)
+  if (OS.dcb.dstats!=1)
     {
+      nstatus(destUnit);
+      yvar=OS.dvstat[3];
       print_error();
-      close(D_DEVICE_DATA);
-      return yvar;
-    }  
+      nclose(sourceUnit);
+      nclose(destUnit);
+    }
 
   do
     {
@@ -61,18 +63,18 @@ int _copy_n_to_d(void)
 	data_len=sizeof(data);
 
       nread(sourceUnit,data,data_len); // add err chk
-
-      put(D_DEVICE_DATA,data,data_len);
+      nwrite(destUnit,data,data_len);
       
-    } while (data_len>0);
-
+    } while (data_len>0);  
+  
   nclose(sourceUnit);
-  close(D_DEVICE_DATA);
+  nclose(destUnit);
+  
   return 0;
 }
 
-int copy_n_to_d(void)
+int copy_n_to_n(void)
 {
-  if (detect_wildcard(sourceDeviceSpec)==false)
-    return _copy_n_to_d();
+  if (detect_wildcard(sourceDeviceSpec))
+    return _copy_n_to_n();
 }
