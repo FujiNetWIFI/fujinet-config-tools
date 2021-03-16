@@ -13,15 +13,7 @@ void print(const char* c)
   OS.iocb[0].buffer=c;
   OS.iocb[0].buflen=l;
   OS.iocb[0].command=IOCB_PUTCHR;
-  ciov();
-}
-
-void printc(char c)
-{
-  OS.iocb[0].buffer=&c;
-  OS.iocb[0].buflen=1;
-  OS.iocb[0].command=IOCB_PUTCHR;
-  ciov();
+  ciov(0);
 }
 
 void get_line(char* buf, unsigned char len)
@@ -29,5 +21,5 @@ void get_line(char* buf, unsigned char len)
   OS.iocb[0].buffer=buf;
   OS.iocb[0].buflen=len;
   OS.iocb[0].command=5;
-  ciov();
+  ciov(0);
 }

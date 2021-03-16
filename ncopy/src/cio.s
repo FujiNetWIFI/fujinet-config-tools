@@ -1,17 +1,12 @@
 	;; Call CIO
 
-	.export _ciov, _dciov
-	.import _yvar
+	.export _ciov
 	
-_ciov:	LDX #$00
-	JSR $E456
-	RTS
-	
-_dciov:	ASL
-	ASL
-	ASL
-	ASL
-	TAX
-	JSR $E456
-	STY _yvar
-	RTS
+_ciov:	ASL			; IOCB in A <<
+	ASL			; <<
+	ASL			; <<
+	ASL			; <<
+	TAX			; CIOV expects IOCB << 4 in X
+	JSR $E456		; Call CIOV
+	TYA			; Transfer Y error to A
+	RTS			; back to caller

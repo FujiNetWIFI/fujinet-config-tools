@@ -1,6 +1,7 @@
 /**
  * Function to call cio
+ * @param IOCB # to call
+ * @return Error
  */
 
-void __fastcall__ ciov(void);
-void __fastcall__ dciov(unsigned char channel);
+unsigned char __fastcall__ ciov(unsigned char channel);
