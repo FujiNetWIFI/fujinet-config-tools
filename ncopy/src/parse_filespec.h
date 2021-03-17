@@ -12,15 +12,16 @@
  */
 
 #include <stdbool.h>
+#include "context.h"
 
 #ifndef PARSE_FILESPEC_H
 #define PARSE_FILESPEC_H
 
 /**
  * Parse the filespec pointed by buf
- * @param The filespec buf.
+ * @param context Pointer to context object
  * @return true if successful
  */
-bool parse_filespec(char* buf);
+bool parse_filespec(Context *context);
 
 #endif /* PARSE_FILESPEC_H */

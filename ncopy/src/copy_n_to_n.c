@@ -20,80 +20,75 @@
 #include "misc.h"
 #include "copy_n_to_n.h"
 
-extern unsigned char destUnit, sourceUnit;
-extern unsigned char sourceDeviceSpec[255];
-extern unsigned char destDeviceSpec[255];
-extern unsigned short data_len;
-extern unsigned char data[16384];
-
-int _copy_n_to_n(void)
+int _copy_n_to_n(Context *context)
 {
   unsigned char err;
+  unsigned short buf_len;
   
-  nopen(sourceUnit,sourceDeviceSpec,4);
+  nopen(context->sourceUnit,context->sourceDeviceSpec,IOCB_READ);
 
   if (OS.dcb.dstats!=1)
     {
-      nstatus(sourceUnit);
+      nstatus(context->sourceUnit);
       err=OS.dvstat[3];
       print_error(err);
-      nclose(sourceUnit);
+      nclose(context->sourceUnit);
     }
   
-  nopen(destUnit,destDeviceSpec,8);
+  nopen(context->destUnit,context->destDeviceSpec,IOCB_WRITE);
 
   if (OS.dcb.dstats!=1)
     {
-      nstatus(destUnit);
+      nstatus(context->destUnit);
       err=OS.dvstat[3];
       print_error(err);
-      nclose(sourceUnit);
-      nclose(destUnit);
+      nclose(context->sourceUnit);
+      nclose(context->destUnit);
     }
 
   do
     {
-      nstatus(sourceUnit);
-      data_len=(OS.dvstat[1]<<8)+OS.dvstat[0];
+      nstatus(context->sourceUnit);
+      buf_len=(OS.dvstat[1]<<8)+OS.dvstat[0];
 
-      if (data_len==0)
+      if (buf_len==0)
 	break;
       
       // Be sure not to overflow buffer!
-      if (data_len>sizeof(data))
-	data_len=sizeof(data);
+      if (buf_len>sizeof(context->buf))
+	buf_len=sizeof(context->buf);
 
-      err=nread(sourceUnit,data,data_len); // add err chk
+      err=nread(context->sourceUnit,context->buf,buf_len); // add err chk
 
       if (err!=1)
 	{
-	  nstatus(sourceUnit);
+	  nstatus(context->sourceUnit);
 	  err=OS.dvstat[3];
 	  print_error(err);
 	  goto nndone;
 	}
 
-      err=nwrite(destUnit,data,data_len);
+      err=nwrite(context->destUnit,context->buf,buf_len);
 
       if (err!=1)
 	{
-	  nstatus(destUnit);
+	  nstatus(context->destUnit);
 	  err=OS.dvstat[3];
 	  print_error(err);
 	  goto nndone;
 	}
       
-    } while (data_len>0);  
+    } while (buf_len>0);  
 
  nndone:  
-  nclose(sourceUnit);
-  nclose(destUnit);
+  nclose(context->sourceUnit);
+  nclose(context->destUnit);
   
   return 0;
 }
 
-int copy_n_to_n(void)
+int copy_n_to_n(Context *context)
 {
-  if (detect_wildcard(sourceDeviceSpec))
-    return _copy_n_to_n();
+  if (detect_wildcard(context->sourceDeviceSpec))
+    return _copy_n_to_n(context);
 }

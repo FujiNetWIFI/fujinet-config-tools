@@ -1,4 +1,4 @@
-/**
+/**w
  * Network Testing tools
  *
  * ncopy - copy files 
@@ -20,27 +20,22 @@
 #include "misc.h"
 #include "copy_n_to_d.h"
 
-extern unsigned char sourceUnit;
-extern unsigned char sourceDeviceSpec[255];
-extern unsigned char destDeviceSpec[255];
-extern unsigned short data_len;
-extern unsigned char data[16384];
-
-int _copy_n_to_d(void)
+int _copy_n_to_d(Context *context)
 {
   unsigned char err=1;
+  unsigned short buf_len;
   
-  nopen(sourceUnit,sourceDeviceSpec,IOCB_READ);
+  nopen(context->sourceUnit,context->sourceDeviceSpec,IOCB_READ);
 
   if (OS.dcb.dstats!=1)
     {
-      nstatus(sourceUnit);
+      nstatus(context->sourceUnit);
       err=OS.dvstat[3];
       print_error(err);
-      nclose(sourceUnit);
+      nclose(context->sourceUnit);
     }
 
-  err=open(D_DEVICE_DATA,IOCB_WRITE,destDeviceSpec,strlen(destDeviceSpec));
+  err=open(D_DEVICE_DATA,IOCB_WRITE,context->destDeviceSpec,strlen(context->destDeviceSpec));
 
   if (err!=1)
     {
@@ -50,45 +45,45 @@ int _copy_n_to_d(void)
 
   do
     {
-      nstatus(sourceUnit);
-      data_len=(OS.dvstat[1]<<8)+OS.dvstat[0];
+      nstatus(context->sourceUnit);
+      buf_len=(OS.dvstat[1]<<8)+OS.dvstat[0];
 
-      if (data_len==0)
+      if (buf_len==0)
 	break;
       
       // Be sure not to overflow buffer!
-      if (data_len>sizeof(data))
-	data_len=sizeof(data);
+      if (buf_len>sizeof(context->buf))
+	buf_len=sizeof(context->buf);
 
-      err=nread(sourceUnit,data,data_len); // add err chk
+      err=nread(context->sourceUnit,context->buf,buf_len); // add err chk
 
       if (err!=1)
 	{
-	  nstatus(sourceUnit);
+	  nstatus(context->sourceUnit);
 	  err=OS.dvstat[3];
 	  print_error(err);
 	  goto nddone;
 	}
       else
 	{
-	  err=put(D_DEVICE_DATA,data,data_len);
+	  err=put(D_DEVICE_DATA,context->buf,buf_len);
 	  if (err!=1)
 	    {
 	      print_error(err);
 	      goto nddone;
 	    }
 	}
-    } while (data_len>0);
+    } while (buf_len>0);
 
  nddone:
-  nclose(sourceUnit);
+  nclose(context->sourceUnit);
   close(D_DEVICE_DATA);
   
   return err == 1 ? 0 : err;
 }
 
-int copy_n_to_d(void)
+int copy_n_to_d(Context *context)
 {
-  if (detect_wildcard(sourceDeviceSpec)==false)
-    return _copy_n_to_d();
+  if (detect_wildcard(context->sourceDeviceSpec)==false)
+    return _copy_n_to_d(context);
 }

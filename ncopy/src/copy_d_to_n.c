@@ -20,17 +20,12 @@
 #include "misc.h"
 #include "copy_d_to_n.h"
 
-extern unsigned char destUnit;
-extern unsigned char sourceDeviceSpec[255];
-extern unsigned char destDeviceSpec[255];
-extern unsigned short data_len;
-extern unsigned char data[16384];
-
-int _copy_d_to_n(void)
+int _copy_d_to_n(Context *context)
 {
   unsigned char err=1;
+  unsigned short buf_len;
   
-  err=open(D_DEVICE_DATA,IOCB_READ,sourceDeviceSpec,strlen(sourceDeviceSpec));
+  err=open(D_DEVICE_DATA,IOCB_READ,context->sourceDeviceSpec,strlen(context->sourceDeviceSpec));
 
   if (err!=1)
     {
@@ -38,42 +33,42 @@ int _copy_d_to_n(void)
       goto dndone;
     }
 
-  nopen(destUnit,destDeviceSpec,8);
+  nopen(context->destUnit,context->destDeviceSpec,8);
 
   if (OS.dcb.dstats!=1)
     {
-      nstatus(destUnit);
+      nstatus(context->destUnit);
       err=OS.dvstat[3];
       print_error(err);
       goto dndone;
       return err;
     }
 
-  while (get(D_DEVICE_DATA,data,sizeof(data)))
+  while (get(D_DEVICE_DATA,context->buf,sizeof(context->buf)))
     {
-      data_len=OS.iocb[D_DEVICE_DATA].buflen;
-      nwrite(destUnit,data,data_len);
+      buf_len=OS.iocb[D_DEVICE_DATA].buflen;
+      nwrite(context->destUnit,context->buf,buf_len);
 
       if (OS.dcb.dstats!=1)
 	{
-	  nstatus(destUnit);
+	  nstatus(context->destUnit);
 	  err=OS.dvstat[3];
 	  print_error(err);
 	  goto dndone;
 	}
       else
-	data_len-=data_len;	  
+	buf_len-=buf_len;	  
     }
 
  dndone:
   close(D_DEVICE_DATA);
-  nclose(destUnit);
+  nclose(context->destUnit);
   
   return err == 1 ? 0 : err;
 }
 
-int copy_d_to_n(void)
+int copy_d_to_n(Context *context)
 {
-  if (detect_wildcard(sourceDeviceSpec)==false)
-    return _copy_d_to_n();
+  if (detect_wildcard(context->sourceDeviceSpec)==false)
+    return _copy_d_to_n(context);
 }

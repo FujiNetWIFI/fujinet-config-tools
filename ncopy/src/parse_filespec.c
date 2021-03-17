@@ -14,53 +14,45 @@
 #include <stdbool.h>
 #include <string.h>
 #include "conio.h"
+#include "parse_filespec.h"
 
-extern unsigned char sourceDeviceSpec[256];
-extern unsigned char destDeviceSpec[256];
-extern unsigned char sourceUnit, destUnit;
-
-bool parse_filespec(char* buf)
-{
-  char *pToken;
-  
+bool parse_filespec(Context *context)
+{  
   // Find comma.
-  pToken=strtok(buf,",");
+  context->sourceDeviceSpec=strtok(context->buf,",");
   
-  if (pToken==NULL)
+  if (context->sourceDeviceSpec==NULL)
     {
       print("NO COMMA\x9b");
       return false;
     }
 
-  strcpy(sourceDeviceSpec,pToken);
-  pToken=strtok(NULL,",");
+  context->destDeviceSpec=strtok(NULL,",");
 
   // Skip over whitespace
-  while (*pToken==0x20) { pToken++; }
+  while (*context->destDeviceSpec==0x20) { context->destDeviceSpec++; }
   
-  strcpy(destDeviceSpec,pToken);
-
   // Put EOLs on the end.
-  sourceDeviceSpec[strlen(sourceDeviceSpec)]=0x9B;
-  destDeviceSpec[strlen(destDeviceSpec)]=0x9B;
+  context->sourceDeviceSpec[strlen(context->sourceDeviceSpec)]=0x9B;
+  context->destDeviceSpec[strlen(context->destDeviceSpec)]=0x9B;
 
   // Check for valid device name chars
-  if (sourceDeviceSpec[0]<0x41 || sourceDeviceSpec[0]>0x5A)
+  if (context->sourceDeviceSpec[0]<0x41 || context->sourceDeviceSpec[0]>0x5A)
     return false;
-  else if (destDeviceSpec[0]<0x41 || destDeviceSpec[0]>0x5A)
+  else if (context->destDeviceSpec[0]<0x41 || context->destDeviceSpec[0]>0x5A)
     return false;
 
   // Check for proper colon placement
-  if (sourceDeviceSpec[1]!=':' && sourceDeviceSpec[2]!=':')
+  if (context->sourceDeviceSpec[1]!=':' && context->sourceDeviceSpec[2]!=':')
     return false;
-  else if (destDeviceSpec[1]!=':' && destDeviceSpec[2]!=':')
+  else if (context->destDeviceSpec[1]!=':' && context->destDeviceSpec[2]!=':')
     return false;
 
   // Try to assign unit numbers.
-  if (sourceDeviceSpec[1] != ':')
-    sourceUnit=sourceDeviceSpec[1]-0x30;
-  if (destDeviceSpec[1] != ':')
-    destUnit=destDeviceSpec[1]-0x30;
+  if (context->sourceDeviceSpec[1] != ':')
+    context->sourceUnit=context->sourceDeviceSpec[1]-0x30;
+  if (context->destDeviceSpec[1] != ':')
+    context->destUnit=context->destDeviceSpec[1]-0x30;
   
   return true;
 }
