@@ -7,7 +7,7 @@
 #include "cio.h"
 #include "misc.h"
 
-void print(const char* c)
+void print(char* c)
 {
   int l=strlen(c);
 

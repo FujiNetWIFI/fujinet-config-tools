@@ -19,23 +19,22 @@
 #include "blockio.h"
 #include "misc.h"
 #include "copy_n_to_d.h"
+#include "context.h"
 
-int _copy_n_to_d(Context *context)
+int _copy_n_to_d()
 {
   unsigned char err=1;
   unsigned short buf_len;
 
-  nopen(context->sourceUnit,context->sourceDeviceSpec,IOCB_READ);
+  nopen(sourceUnit,sourceDeviceSpec,IOCB_READ);
 
   if (OS.dcb.dstats!=1)
     {
-      nstatus(context->sourceUnit);
-      err=OS.dvstat[3];
-      print_error(err);
-      nclose(context->sourceUnit);
+      print_nerror(sourceUnit);
+      goto nddone;
     }
 
-  err=open(D_DEVICE_DATA,IOCB_WRITE,context->destDeviceSpec,strlen(context->destDeviceSpec));
+  err=open(D_DEVICE_DATA,IOCB_WRITE,destDeviceSpec,strlen(destDeviceSpec));
 
   if (err!=1)
     {
@@ -45,28 +44,26 @@ int _copy_n_to_d(Context *context)
 
   do
     {
-      nstatus(context->sourceUnit);
+      nstatus(sourceUnit);
       buf_len=(OS.dvstat[1]<<8)+OS.dvstat[0];
 
       if (buf_len==0)
 	break;
       
       // Be sure not to overflow buffer!
-      if (buf_len>sizeof(context->buf))
-	buf_len=sizeof(context->buf);
+      if (buf_len>sizeof(buf))
+	buf_len=sizeof(buf);
 
-      err=nread(context->sourceUnit,context->buf,buf_len); // add err chk
+      err=nread(sourceUnit,buf,buf_len); // add err chk
 
       if (err!=1)
 	{
-	  nstatus(context->sourceUnit);
-	  err=OS.dvstat[3];
-	  print_error(err);
+	  print_nerror(sourceUnit);
 	  goto nddone;
 	}
       else
 	{
-	  err=put(D_DEVICE_DATA,context->buf,buf_len);
+	  err=put(D_DEVICE_DATA,buf,buf_len);
 	  if (err!=1)
 	    {
 	      print_error(err);
@@ -76,14 +73,14 @@ int _copy_n_to_d(Context *context)
     } while (buf_len>0);
 
  nddone:
-  nclose(context->sourceUnit);
+  nclose(sourceUnit);
   close(D_DEVICE_DATA);
   
   return err == 1 ? 0 : err;
 }
 
-int copy_n_to_d(Context *context)
+int copy_n_to_d()
 {
-  if (detect_wildcard(context->sourceDeviceSpec)==false)
-    return _copy_n_to_d(context);
+  if (detect_wildcard(sourceDeviceSpec)==false)
+    return _copy_n_to_d();
 }

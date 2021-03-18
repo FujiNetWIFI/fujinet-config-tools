@@ -54,4 +54,11 @@ unsigned char nwrite(unsigned char unit, char* buf, unsigned short len);
  */
 unsigned char nstatus(unsigned char unit);
 
+/**
+ * Print error of last N: sio operation
+ * @param unit the unit to query status
+ * @return the error code
+ */
+void print_nerror(unsigned char unit);
+
 #endif /* NSIO_H */

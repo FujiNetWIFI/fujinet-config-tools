@@ -14,13 +14,11 @@
 #ifndef COPY_D_TO_N_H
 #define COPY_D_TO_N_H
 
-#include "context.h"
-
 /**
  * Copy file from CIO to N:
  * @param context Context struct
  * @return error code
  */
-int copy_d_to_n(Context *context);
+int copy_d_to_n();
 
 #endif /* COPY_D_TO_N_H */

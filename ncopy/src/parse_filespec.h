@@ -22,6 +22,6 @@
  * @param context Pointer to context object
  * @return true if successful
  */
-bool parse_filespec(Context *context);
+bool parse_filespec();
 
 #endif /* PARSE_FILESPEC_H */

@@ -19,13 +19,14 @@
 #include "blockio.h"
 #include "misc.h"
 #include "copy_d_to_n.h"
+#include "context.h"
 
-int _copy_d_to_n(Context *context)
+int _copy_d_to_n()
 {
   unsigned char err=1;
   unsigned short buf_len;
   
-  err=open(D_DEVICE_DATA,IOCB_READ,context->sourceDeviceSpec,strlen(context->sourceDeviceSpec));
+  err=open(D_DEVICE_DATA,IOCB_READ,sourceDeviceSpec,strlen(sourceDeviceSpec));
 
   if (err!=1)
     {
@@ -33,27 +34,29 @@ int _copy_d_to_n(Context *context)
       goto dndone;
     }
 
-  nopen(context->destUnit,context->destDeviceSpec,8);
+  nopen(destUnit,destDeviceSpec,8);
 
   if (OS.dcb.dstats!=1)
     {
-      nstatus(context->destUnit);
-      err=OS.dvstat[3];
-      print_error(err);
+      print_nerror(destUnit);
       goto dndone;
       return err;
     }
 
-  while (get(D_DEVICE_DATA,context->buf,sizeof(context->buf)))
+  while (err=(get(D_DEVICE_DATA,buf,sizeof(buf))))
     {
+      if (err != 1)
+	{
+	  print_error(err);
+	  goto dndone;
+	}
+      
       buf_len=OS.iocb[D_DEVICE_DATA].buflen;
-      nwrite(context->destUnit,context->buf,buf_len);
+      nwrite(destUnit,buf,buf_len);
 
       if (OS.dcb.dstats!=1)
 	{
-	  nstatus(context->destUnit);
-	  err=OS.dvstat[3];
-	  print_error(err);
+	  print_nerror(destUnit);
 	  goto dndone;
 	}
       else
@@ -62,13 +65,13 @@ int _copy_d_to_n(Context *context)
 
  dndone:
   close(D_DEVICE_DATA);
-  nclose(context->destUnit);
+  nclose(destUnit);
   
   return err == 1 ? 0 : err;
 }
 
-int copy_d_to_n(Context *context)
+int copy_d_to_n()
 {
-  if (detect_wildcard(context->sourceDeviceSpec)==false)
-    return _copy_d_to_n(context);
+  if (detect_wildcard(sourceDeviceSpec)==false)
+    return _copy_d_to_n();
 }

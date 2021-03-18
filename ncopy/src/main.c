@@ -28,12 +28,22 @@
 #include "copy_n_to_d.h"
 #include "copy_n_to_n.h"
 
-unsigned char i;
+/* GLOBALS */
 
-Context context;
+char buf[8192];
+unsigned char sourceUnit;
+unsigned char destUnit;
+unsigned short dirPos;
+char wildcardSpec[256];
+char wildcardPath[256];
+char sourceDeviceSpec[256];
+char destDeviceSpec[256];
+
 
 int main(int argc, char* argv[])
 {  
+  unsigned char i;
+  
   OS.lmargn=2;
 
   // Args processing.  
@@ -42,35 +52,28 @@ int main(int argc, char* argv[])
       // CLI DOS, concatenate arguments together.
       for (i=1;i<argc;i++)
 	{
-	  strcat(context.buf,argv[i]);
+	  strcat(buf,argv[i]);
 	  if (i<argc-1)
-	    strcat(context.buf," ");
+	    strcat(buf," ");
 	}
     }
   else
     {
       // Interactive
       print("NET COPY--FROM, TO?\x9b");
-      get_line(context.buf,255);
+      get_line(buf,255);
     }
 
-  if (parse_filespec(&context)==0)
+  if (parse_filespec()==0)
     {
       print("COULD NOT PARSE FILESPEC.\x9b");
       return(1);
     }
 
-  if (valid_cio_device(context.sourceDeviceSpec[0]) && valid_network_device(context.destDeviceSpec[0]))
-    return copy_d_to_n(&context);
-  else if (valid_network_device(context.sourceDeviceSpec[0]) && valid_cio_device(context.destDeviceSpec[0]))
-    return copy_n_to_d(&context);
-  else if (valid_network_device(context.sourceDeviceSpec[0]) && valid_network_device(context.destDeviceSpec[0]))
-    return copy_n_to_n(&context);
-
-  if (!_is_cmdline_dos())
-    {
-      print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
-      get_line(context.buf,sizeof(context.buf));
-    }
-  
+  if (valid_cio_device(sourceDeviceSpec[0]) && valid_network_device(destDeviceSpec[0]))
+    return copy_d_to_n();
+  else if (valid_network_device(sourceDeviceSpec[0]) && valid_cio_device(destDeviceSpec[0]))
+    return copy_n_to_d();
+  else if (valid_network_device(sourceDeviceSpec[0]) && valid_network_device(destDeviceSpec[0]))
+    return copy_n_to_n();
 }

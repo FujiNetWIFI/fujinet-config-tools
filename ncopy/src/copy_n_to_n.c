@@ -19,76 +19,68 @@
 #include "blockio.h"
 #include "misc.h"
 #include "copy_n_to_n.h"
+#include "context.h"
 
-int _copy_n_to_n(Context *context)
+int _copy_n_to_n()
 {
   unsigned char err;
   unsigned short buf_len;
   
-  nopen(context->sourceUnit,context->sourceDeviceSpec,IOCB_READ);
+  nopen(sourceUnit,sourceDeviceSpec,IOCB_READ);
 
   if (OS.dcb.dstats!=1)
     {
-      nstatus(context->sourceUnit);
-      err=OS.dvstat[3];
-      print_error(err);
-      nclose(context->sourceUnit);
+      print_nerror(sourceUnit);
+      goto nndone;
     }
   
-  nopen(context->destUnit,context->destDeviceSpec,IOCB_WRITE);
+  nopen(destUnit,destDeviceSpec,IOCB_WRITE);
 
   if (OS.dcb.dstats!=1)
     {
-      nstatus(context->destUnit);
-      err=OS.dvstat[3];
-      print_error(err);
-      nclose(context->sourceUnit);
-      nclose(context->destUnit);
+      print_nerror(destUnit);
+      goto nndone;
     }
 
   do
     {
-      nstatus(context->sourceUnit);
+      nstatus(sourceUnit);
       buf_len=(OS.dvstat[1]<<8)+OS.dvstat[0];
 
       if (buf_len==0)
 	break;
       
       // Be sure not to overflow buffer!
-      if (buf_len>sizeof(context->buf))
-	buf_len=sizeof(context->buf);
+      if (buf_len>sizeof(buf))
+	buf_len=sizeof(buf);
 
-      err=nread(context->sourceUnit,context->buf,buf_len); // add err chk
+      err=nread(sourceUnit,buf,buf_len); // add err chk
 
       if (err!=1)
 	{
-	  nstatus(context->sourceUnit);
-	  err=OS.dvstat[3];
-	  print_error(err);
+	  print_nerror(sourceUnit);
 	  goto nndone;
 	}
 
-      err=nwrite(context->destUnit,context->buf,buf_len);
+      err=nwrite(destUnit,buf,buf_len);
 
       if (err!=1)
 	{
-	  nstatus(context->destUnit);
-	  err=OS.dvstat[3];
-	  print_error(err);
+	  print_nerror(destUnit);
 	  goto nndone;
 	}
       
     } while (buf_len>0);  
 
  nndone:  
-  nclose(context->sourceUnit);
-  nclose(context->destUnit);
+  nclose(sourceUnit);
+  nclose(destUnit);
   
   return 0;
 }
 
-int copy_n_to_n(Context *context)
+int copy_n_to_n()
 {
-  if (detect_wildcard(context->sourceDeviceSpec))
-    return _copy_n_to_n(context);
+  if (detect_wildcard(sourceDeviceSpec))
+    return _copy_n_to_n();
 }

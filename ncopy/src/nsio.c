@@ -18,6 +18,7 @@
 #include "conio.h"
 #include "err.h"
 #include "nsio.h"
+#include "misc.h"
 
 unsigned char _nsio(unsigned char dunit, unsigned char dcomnd, unsigned char dstats, void *dbuf, unsigned short dbyt, unsigned short daux)
 {
@@ -55,4 +56,10 @@ unsigned char nwrite(unsigned char unit, char* buf, unsigned short len)
 unsigned char nstatus(unsigned char unit)
 {
   return _nsio(unit, 'S', 0x40, OS.dvstat, 4, 0);
+}
+
+void print_nerror(unsigned char unit)
+{
+  nstatus(unit);
+  print_error(OS.dvstat[3]);
 }
