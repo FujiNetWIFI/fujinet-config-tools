@@ -19,70 +19,40 @@
 #include "err.h"
 #include "nsio.h"
 
-unsigned char nopen(unsigned char unit, char* buf, unsigned char aux1)
+unsigned char _nsio(unsigned char dunit, unsigned char dcomnd, unsigned char dstats, void *dbuf, unsigned short dbyt, unsigned short daux)
 {
   OS.dcb.ddevic=0x71;
-  OS.dcb.dunit=unit;
-  OS.dcb.dcomnd='O';
-  OS.dcb.dstats=0x80;
-  OS.dcb.dbuf=buf;
+  OS.dcb.dunit=dunit;
+  OS.dcb.dcomnd=dcomnd;
+  OS.dcb.dstats=dstats;
+  OS.dcb.dbuf=dbuf;
   OS.dcb.dtimlo=0x1f;
-  OS.dcb.dbyt=256;
-  OS.dcb.daux1=aux1;
-  OS.dcb.daux2=0; // NO TRANSLATION!
+  OS.dcb.dbyt=dbyt;
+  OS.dcb.daux=daux;
   return siov();
+}
+
+unsigned char nopen(unsigned char unit, char* buf, unsigned char aux1)
+{
+  return _nsio(unit, 'O', 0x80, buf, 256, aux1);
 }
 
 unsigned char nclose(unsigned char unit)
 {
-  OS.dcb.ddevic=0x71;
-  OS.dcb.dunit=unit;
-  OS.dcb.dcomnd='C';
-  OS.dcb.dstats=0x00;
-  OS.dcb.dbuf=NULL;
-  OS.dcb.dtimlo=0x1f;
-  OS.dcb.dbyt=0;
-  OS.dcb.daux1=0;
-  OS.dcb.daux2=0;
-  return siov();
+  return _nsio(unit, 'C', 0x00, NULL, 0, 0);
 }
 
 unsigned char nread(unsigned char unit, char* buf, unsigned short len)
 {
-  OS.dcb.ddevic=0x71;
-  OS.dcb.dunit=unit;
-  OS.dcb.dcomnd='R';
-  OS.dcb.dstats=0x40;
-  OS.dcb.dbuf=buf;
-  OS.dcb.dtimlo=0x1f;
-  OS.dcb.dbyt=len;
-  OS.dcb.daux=len;
-  return siov();
+  return _nsio(unit, 'R', 0x40, buf, len, len);
 }
 
 unsigned char nwrite(unsigned char unit, char* buf, unsigned short len)
 {
-  OS.dcb.ddevic=0x71;
-  OS.dcb.dunit=unit;
-  OS.dcb.dcomnd='W';
-  OS.dcb.dstats=0x80;
-  OS.dcb.dbuf=buf;
-  OS.dcb.dtimlo=0x1f;
-  OS.dcb.dbyt=len;
-  OS.dcb.daux=len;
-  return siov();
+  return _nsio(unit, 'W', 0x80, buf, len, len);
 }
 
 unsigned char nstatus(unsigned char unit)
 {
-  OS.dcb.ddevic=0x71;
-  OS.dcb.dunit=unit;
-  OS.dcb.dcomnd='S';
-  OS.dcb.dstats=0x40;
-  OS.dcb.dbuf=OS.dvstat;
-  OS.dcb.dtimlo=0x1f;
-  OS.dcb.dbyt=4;
-  OS.dcb.daux1=0;
-  OS.dcb.daux2=0;
-  return siov();
+  return _nsio(unit, 'S', 0x40, OS.dvstat, 4, 0);
 }

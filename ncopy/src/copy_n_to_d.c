@@ -24,7 +24,7 @@ int _copy_n_to_d(Context *context)
 {
   unsigned char err=1;
   unsigned short buf_len;
-  
+
   nopen(context->sourceUnit,context->sourceDeviceSpec,IOCB_READ);
 
   if (OS.dcb.dstats!=1)

@@ -17,20 +17,25 @@
 #include "parse_filespec.h"
 
 bool parse_filespec(Context *context)
-{  
+{
+  char *p;
   // Find comma.
-  context->sourceDeviceSpec=strtok(context->buf,",");
+  p=strtok(context->buf,",");
   
-  if (context->sourceDeviceSpec==NULL)
+  if (p==NULL)
     {
       print("NO COMMA\x9b");
       return false;
     }
 
-  context->destDeviceSpec=strtok(NULL,",");
+  strcpy(context->sourceDeviceSpec,p);
+ 
+  p=strtok(NULL,",");
 
   // Skip over whitespace
-  while (*context->destDeviceSpec==0x20) { context->destDeviceSpec++; }
+  while (*p==0x20) { p++; }
+
+  strcpy(context->destDeviceSpec,p);
   
   // Put EOLs on the end.
   context->sourceDeviceSpec[strlen(context->sourceDeviceSpec)]=0x9B;
@@ -48,6 +53,8 @@ bool parse_filespec(Context *context)
   else if (context->destDeviceSpec[1]!=':' && context->destDeviceSpec[2]!=':')
     return false;
 
+  context->sourceUnit=context->destUnit=1;
+  
   // Try to assign unit numbers.
   if (context->sourceDeviceSpec[1] != ':')
     context->sourceUnit=context->sourceDeviceSpec[1]-0x30;

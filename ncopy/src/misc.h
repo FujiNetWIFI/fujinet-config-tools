@@ -43,4 +43,14 @@ bool valid_network_device(char d);
  */
 bool valid_cio_device(char d);
 
+/**
+ * CIO call wrapper
+ * @param channel IOCB
+ * @param command CIO command
+ * @param aux1 The AUX1 value
+ * @param buf the buffer pointer to put into ICBAL/ICBAH
+ * @param len the length of the buffer to put into ICBLL/ICBLH
+ */
+unsigned char _cio(unsigned char channel, unsigned char command, unsigned char aux1, char* buf, unsigned short len);
+
 #endif /* MISC_H */

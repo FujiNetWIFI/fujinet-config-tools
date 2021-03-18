@@ -17,6 +17,7 @@
 #include <stdbool.h>
 #include "misc.h"
 #include "conio.h"
+#include "cio.h"
 
 void print_error(unsigned char err)
 {
@@ -45,4 +46,13 @@ bool valid_network_device(char d)
 bool valid_cio_device(char d)
 {
   return (d!='N' && (d>0x40 && d<0x5B));
+}
+
+unsigned char _cio(unsigned char channel, unsigned char command, unsigned char aux1, char* buf, unsigned short len)
+{
+  OS.iocb[channel].buffer=buf;
+  OS.iocb[channel].buflen=len;
+  OS.iocb[channel].command=command;
+  OS.iocb[channel].aux1=aux1;
+  return ciov(channel);  
 }

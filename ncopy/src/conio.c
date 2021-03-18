@@ -5,21 +5,16 @@
 #include <atari.h>
 #include <string.h>
 #include "cio.h"
+#include "misc.h"
 
 void print(const char* c)
 {
   int l=strlen(c);
 
-  OS.iocb[0].buffer=c;
-  OS.iocb[0].buflen=l;
-  OS.iocb[0].command=IOCB_PUTCHR;
-  ciov(0);
+  _cio(0, IOCB_PUTCHR, 0, c, l);  
 }
 
 void get_line(char* buf, unsigned char len)
 {
-  OS.iocb[0].buffer=buf;
-  OS.iocb[0].buflen=len;
-  OS.iocb[0].command=5;
-  ciov(0);
+  _cio(0, IOCB_GETREC, 0, buf, len);
 }
