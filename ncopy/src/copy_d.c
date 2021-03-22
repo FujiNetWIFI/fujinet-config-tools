@@ -18,10 +18,11 @@
 #include "nsio.h"
 #include "blockio.h"
 #include "misc.h"
-#include "copy_d_to_n.h"
+#include "copy_d.h"
 #include "context.h"
+#include "wildcard.h"
 
-int _copy_d_to_n()
+int _copy_d()
 {
   unsigned char err=1;
   unsigned short buf_len;
@@ -70,8 +71,10 @@ int _copy_d_to_n()
   return err == 1 ? 0 : err;
 }
 
-int copy_d_to_n()
+int copy_d()
 {
-  if (detect_wildcard(sourceDeviceSpec)==false)
-    return _copy_d_to_n();
+  if (detect_wildcard(sourceDeviceSpec)==true)
+    return wildcard_d();
+  else
+    return _copy_d();
 }

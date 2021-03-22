@@ -61,6 +61,6 @@ bool parse_filespec()
     sourceUnit=sourceDeviceSpec[1]-0x30;
   if (destDeviceSpec[1] != ':')
     destUnit=destDeviceSpec[1]-0x30;
-  
+
   return true;
 }

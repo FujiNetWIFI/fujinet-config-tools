@@ -22,5 +22,6 @@ extern char wildcardSpec[256];
 extern char wildcardPath[256];
 extern char sourceDeviceSpec[256];
 extern char destDeviceSpec[256];
+extern unsigned char i;
 
 #endif /* CONTEXT_H */

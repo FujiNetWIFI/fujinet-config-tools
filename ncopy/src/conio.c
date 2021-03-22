@@ -7,14 +7,14 @@
 #include "cio.h"
 #include "misc.h"
 
-void print(char* c)
+void print(const char* c)
 {
   int l=strlen(c);
 
-  _cio(0, IOCB_PUTCHR, 0, c, l);  
+  _cio(0, IOCB_PUTCHR, 12, c, l);  
 }
 
 void get_line(char* buf, unsigned char len)
 {
-  _cio(0, IOCB_GETREC, 0, buf, len);
+  _cio(0, IOCB_GETREC, 12, buf, len);
 }

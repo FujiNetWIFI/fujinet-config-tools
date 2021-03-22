@@ -18,10 +18,11 @@
 #include "nsio.h"
 #include "blockio.h"
 #include "misc.h"
-#include "copy_n_to_d.h"
+#include "copy_n.h"
 #include "context.h"
+#include "wildcard.h"
 
-int _copy_n_to_d()
+int _copy_n(bool dest_is_n)
 {
   unsigned char err=1;
   unsigned short buf_len;
@@ -34,11 +35,17 @@ int _copy_n_to_d()
       goto nddone;
     }
 
-  err=open(D_DEVICE_DATA,IOCB_WRITE,destDeviceSpec,strlen(destDeviceSpec));
-
+  if (dest_is_n==true)
+    err=open(D_DEVICE_DATA,IOCB_WRITE,destDeviceSpec,strlen(destDeviceSpec));
+  else
+    err=nopen(destUnit,destDeviceSpec,sizeof(destDeviceSpec));
+  
   if (err!=1)
     {
-      print_error(err);
+      if (dest_is_n==true)
+	print_nerror(destUnit);
+      else
+	print_error(err);
       goto nddone;
     }  
 
@@ -63,10 +70,17 @@ int _copy_n_to_d()
 	}
       else
 	{
-	  err=put(D_DEVICE_DATA,buf,buf_len);
+	  if (dest_is_n==true)
+	    err=nwrite(destUnit,buf,buf_len);
+	  else
+	      err=put(D_DEVICE_DATA,buf,buf_len);
+	  
 	  if (err!=1)
 	    {
-	      print_error(err);
+	      if (dest_is_n==true)
+		print_nerror(err);
+	      else
+		print_error(err);
 	      goto nddone;
 	    }
 	}
@@ -74,13 +88,18 @@ int _copy_n_to_d()
 
  nddone:
   nclose(sourceUnit);
-  close(D_DEVICE_DATA);
+  if (dest_is_n==true)
+    nclose(destUnit);
+  else
+    close(D_DEVICE_DATA);
   
   return err == 1 ? 0 : err;
 }
 
-int copy_n_to_d()
+int copy_n(bool dest_is_n)
 {
-  if (detect_wildcard(sourceDeviceSpec)==false)
-    return _copy_n_to_d();
+  if (detect_wildcard(sourceDeviceSpec))
+    return wildcard_n(dest_is_n);
+  else
+    return _copy_n(dest_is_n);
 }

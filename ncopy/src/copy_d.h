@@ -11,14 +11,13 @@
  * See COPYING for details.
  */
 
-#ifndef COPY_N_TO_N_H
-#define COPY_N_TO_N_H
+#ifndef COPY_D_TO_N_H
+#define COPY_D_TO_N_H
 
 /**
  * Copy file from CIO to N:
- * @param context Context object
  * @return error code
  */
-int copy_n_to_n();
+int copy_d();
 
-#endif /* COPY_N_TO_N_H */
+#endif /* COPY_D_TO_N_H */

@@ -16,9 +16,9 @@
 
 /**
  * Copy file from N: to CIO
- * @param context Context object
+ * @param dest_is_n Destination is Nx:
  * @return error code
  */
-int copy_n_to_d();
+int copy_n(bool dest_is_n);
 
 #endif /* COPY_N_TO_D_H */

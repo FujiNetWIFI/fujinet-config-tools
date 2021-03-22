@@ -28,14 +28,9 @@ void print_error(unsigned char err)
   print("\x9b");
 }
 
-bool detect_wildcard(char* buf)
+bool detect_wildcard(char* b)
 {
-  char *pWildcardStar;
-  char *pWildcardChar;
-  
-  pWildcardStar=strchr(buf, '*');
-  pWildcardChar=strchr(buf, '?');
-  return ((pWildcardStar!=NULL) || (pWildcardChar!=NULL));
+  return (!(strchr(b, '*') == NULL) || (strchr(b, '?') == NULL));
 }
 
 bool valid_network_device(char d)
@@ -53,6 +48,9 @@ unsigned char _cio(unsigned char channel, unsigned char command, unsigned char a
   OS.iocb[channel].buffer=buf;
   OS.iocb[channel].buflen=len;
   OS.iocb[channel].command=command;
-  OS.iocb[channel].aux1=aux1;
-  return ciov(channel);  
+
+  if (aux1 != 0)
+    OS.iocb[channel].aux1=aux1;
+  
+  return ciov(channel);
 }
