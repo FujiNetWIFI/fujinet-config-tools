@@ -30,7 +30,12 @@ void print_error(unsigned char err)
 
 bool detect_wildcard(char* b)
 {
-  return (!(strchr(b, '*') == NULL) || (strchr(b, '?') == NULL));
+  if (strchr(b,'*')!=NULL)
+    return true;
+  if (strchr(b,'?')!=NULL)
+    return true;
+
+  return false;  
 }
 
 bool valid_network_device(char d)

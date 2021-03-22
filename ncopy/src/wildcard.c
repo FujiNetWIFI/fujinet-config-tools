@@ -142,12 +142,12 @@ int wildcard_d()
       else
 	wildcard_filename();
       
-      /* // Do copy */
-      /* err = copy_d_to_n(); */
+      // Do copy
+      err = copy_d();
 
-      /* // Did copy error? */
-      /* if (err == 0) */
-      /* 	break; */
+      // Did copy error?
+      if ((err = copy_d()) != 1)
+      	break;
 
       // Otherwise, increment to next filename, and continue.
       dirPos++;
@@ -164,7 +164,12 @@ int wildcard_n(bool dest_is_n)
   // init
   wildcard_setup();
 
-  err=nopen(sourceUnit,wildcardSpec,IOCB_DIRECTORY);
+  if (dest_is_n == true)
+    print("dest_is_n\x9b");
+  else
+    print("dest_is_not_n\x9b");
+  
+  err=nopen(8,wildcardSpec,IOCB_DIRECTORY);
   
   if (err!=1)
     {
@@ -176,7 +181,7 @@ int wildcard_n(bool dest_is_n)
     {
       wildcard_clear_filenames();
 
-      nstatus(sourceUnit);
+      nstatus(8);
       bw=OS.dvstat[0]+(OS.dvstat[1]*256);
 
       if (bw==0)
@@ -185,7 +190,7 @@ int wildcard_n(bool dest_is_n)
 	  break;
 	}
       
-      err=nread(sourceUnit,buf,bw > 18 ? 18 : bw);
+      err=nread(8,buf,bw > 18 ? 18 : bw);
       
       if (err != 1)
 	break;
@@ -195,15 +200,12 @@ int wildcard_n(bool dest_is_n)
 	  wildcard_filename();
 	  
 	  /* // Do copy */
-	  /* err = copy_d_to_n(); */
-	  
-	  /* // Did copy error? */
-	  /* if (err == 0) */
-	  /* 	break; */	  
+	  if ((err = copy_n(dest_is_n)) != 1)
+	    break;	  
 	}
     }
 
  wndone:
-  nclose(sourceUnit);
+  nclose(8);
   return err;
 }

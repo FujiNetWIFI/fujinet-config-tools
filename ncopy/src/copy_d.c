@@ -28,25 +28,27 @@ int _copy_d()
   unsigned short buf_len;
   
   err=open(D_DEVICE_DATA,IOCB_READ,sourceDeviceSpec,strlen(sourceDeviceSpec));
-
+  
   if (err!=1)
     {
       print_error(err);
       goto dndone;
     }
-
+  
   nopen(destUnit,destDeviceSpec,8);
-
+  
   if (OS.dcb.dstats!=1)
     {
       print_nerror(destUnit);
       goto dndone;
       return err;
     }
-
-  while (err=(get(D_DEVICE_DATA,buf,sizeof(buf))))
+  
+  do
     {
-      if (err != 1)
+      err = get(D_DEVICE_DATA,buf,sizeof(buf));
+      
+      if ((err != 1) && (err != 136))
 	{
 	  print_error(err);
 	  goto dndone;
@@ -54,7 +56,7 @@ int _copy_d()
       
       buf_len=OS.iocb[D_DEVICE_DATA].buflen;
       nwrite(destUnit,buf,buf_len);
-
+      
       if (OS.dcb.dstats!=1)
 	{
 	  print_nerror(destUnit);
@@ -63,12 +65,16 @@ int _copy_d()
       else
 	buf_len-=buf_len;	  
     }
-
+  while (err==1);
+  
+  if (err==136)
+    err=1;
+  
  dndone:
   close(D_DEVICE_DATA);
   nclose(destUnit);
   
-  return err == 1 ? 0 : err;
+  return err;
 }
 
 int copy_d()
