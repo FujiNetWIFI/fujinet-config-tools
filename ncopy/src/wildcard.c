@@ -75,7 +75,7 @@ void wildcard_filename()
   strcat(destDeviceSpec,fname);
 
   print("COPYING--");
-  print(sourceDeviceSpec);
+  print(strrchr(sourceDeviceSpec,sourcePathSeperator)+1);
   print("\x9b");
 }
 
