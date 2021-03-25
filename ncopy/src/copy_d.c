@@ -14,7 +14,6 @@
 #include <atari.h>
 #include <string.h>
 #include "conio.h"
-#include "err.h"
 #include "nsio.h"
 #include "blockio.h"
 #include "misc.h"

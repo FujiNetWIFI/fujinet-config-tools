@@ -14,7 +14,6 @@
 #include <atari.h>
 #include <string.h>
 #include "conio.h"
-#include "err.h"
 #include "nsio.h"
 #include "blockio.h"
 #include "misc.h"
@@ -53,7 +52,12 @@ int _copy_n(bool dest_is_n)
   do
     {
       nstatus(sourceUnit);
+
       buf_len = (OS.dvstat[1]*256)+OS.dvstat[0];
+
+      if (buf_len > sizeof(buf))
+	buf_len=sizeof(buf);
+      
       err=OS.dvstat[3];
       
       if (buf_len>0)

@@ -16,7 +16,6 @@
 #include <peekpoke.h>
 #include "sio.h"
 #include "conio.h"
-#include "err.h"
 #include "nsio.h"
 #include "misc.h"
 
@@ -56,6 +55,16 @@ unsigned char nwrite(unsigned char unit, char* buf, unsigned short len)
 unsigned char nstatus(unsigned char unit)
 {
   return _nsio(unit, 'S', 0x40, OS.dvstat, 4, 0);
+}
+
+unsigned char ncd(unsigned char unit, char* buf)
+{
+  return _nsio(unit, 0x2C, 0x80, buf, 256, 0);
+}
+
+unsigned char npwd(unsigned char unit, char* buf)
+{
+  return _nsio(unit, 0x30, 0x40, buf, 256, 0);
 }
 
 void print_nerror(unsigned char unit)

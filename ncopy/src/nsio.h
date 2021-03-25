@@ -55,6 +55,22 @@ unsigned char nwrite(unsigned char unit, char* buf, unsigned short len);
 unsigned char nstatus(unsigned char unit);
 
 /**
+ * NCD to directory
+ * @param source unit
+ * @param the devicespec buffer
+ * @return the error code
+ */
+unsigned char ncd(unsigned char unit, char* buf);
+
+/**
+ * NPWD get current directory
+ * @param source unit
+ * @param the target buffer
+ * @return the error code
+ */
+unsigned char npwd(unsigned char unit, char* buf);
+
+/**
  * Print error of last N: sio operation
  * @param unit the unit to query status
  * @return the error code

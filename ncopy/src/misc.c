@@ -15,9 +15,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "context.h"
 #include "misc.h"
 #include "conio.h"
 #include "cio.h"
+
+extern char sourcePathSeperator;
+extern char destPathSeperator;
 
 void print_error(unsigned char err)
 {
@@ -26,6 +30,23 @@ void print_error(unsigned char err)
   itoa(err,errnum,10);
   print(errnum);
   print("\x9b");
+}
+
+void detect_seperator()
+{
+  if (strchr(sourceDeviceSpec,'/') != NULL)
+    sourcePathSeperator = '/';
+  else if (strchr(sourceDeviceSpec,'\\') != NULL)
+    sourcePathSeperator = '\\';
+  else
+    sourcePathSeperator = ':';
+
+  if (strchr(destDeviceSpec,'/') != NULL)
+    destPathSeperator = '/';
+  else if (strchr(destDeviceSpec,'\\') != NULL)
+    destPathSeperator = '\\';
+  else
+    destPathSeperator = ':';
 }
 
 bool detect_wildcard(char* b)

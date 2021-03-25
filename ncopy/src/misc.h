@@ -23,6 +23,11 @@
 void print_error(unsigned char err);
 
 /**
+ * Detect the path seperator being used
+ */
+void detect_seperator();
+
+/**
  * Detect wildcard
  * @param buf - the devicespec buffer
  * @return true if wildcard present, otherwise false.

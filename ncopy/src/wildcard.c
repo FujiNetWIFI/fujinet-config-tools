@@ -25,27 +25,9 @@
 
 static char fname[13];
 static char j;
-static char* sourceDevice_pos;
-static char* destDevice_pos;
-static char sourcePathSeperator = ':';
-static char destPathSeperator = ':';
 
-void wildcard_seperator()
-{
-  if (strchr(sourceDeviceSpec,'/') != NULL)
-    sourcePathSeperator = '/';
-  else if (strchr(sourceDeviceSpec,'\\') != NULL)
-    sourcePathSeperator = '\\';
-  else
-    sourcePathSeperator = ':';
-
-  if (strchr(destDeviceSpec,'/') != NULL)
-    destPathSeperator = '/';
-  else if (strchr(destDeviceSpec,'\\') != NULL)
-    destPathSeperator = '\\';
-  else
-    destPathSeperator = ':';
-}
+extern char sourcePathSeperator;
+extern char destPathSeperator;
 
 void wildcard_setsourceDevice_pos()
 {
@@ -90,7 +72,6 @@ void wildcard_setup()
 {
   dirPos = 0;
   strcpy(wildcardSpec, sourceDeviceSpec);
-  wildcard_seperator();
   wildcard_setsourceDevice_pos();
   wildcard_setdestDevice_pos();
   close(D_DEVICE_DIRECTORY);
@@ -160,14 +141,18 @@ int wildcard_n(bool dest_is_n)
 {
   unsigned char err=1;
   unsigned short bw;
+
+  // Migrate prefix from source unit to unit 8
+  memset(wildcardSpec,0,256);
+  strcat(wildcardSpec,"N8:");
+  memset(buf,0,256);
+  ncd(8,buf);
+  npwd(sourceUnit,buf);
+  strcat(wildcardSpec,buf);
+  ncd(8,wildcardSpec);
   
   // init
   wildcard_setup();
-
-  if (dest_is_n == true)
-    print("dest_is_n\x9b");
-  else
-    print("dest_is_not_n\x9b");
   
   err=nopen(8,wildcardSpec,IOCB_DIRECTORY);
   

@@ -16,10 +16,8 @@
 #include <stdlib.h>
 #include <peekpoke.h>
 #include <stdbool.h>
-#include "context.h"
 #include "sio.h"
 #include "conio.h"
-#include "err.h"
 #include "nsio.h"
 #include "blockio.h"
 #include "misc.h"
@@ -30,7 +28,7 @@
 
 /* GLOBALS */
 
-char buf[8192];
+char buf[16384];
 unsigned char sourceUnit;
 unsigned char destUnit;
 unsigned short dirPos;
@@ -38,7 +36,11 @@ char wildcardSpec[256];
 char wildcardPath[256];
 char sourceDeviceSpec[256];
 char destDeviceSpec[256];
-char pathSeperator = ':';
+char* sourceDevice_pos;
+char* destDevice_pos;
+char sourcePathSeperator;
+char destPathSeperator;
+
 unsigned char i;
 
 int main(int argc, char* argv[])

@@ -16,10 +16,21 @@
 #include "conio.h"
 #include "parse_filespec.h"
 #include "context.h"
+#include "misc.h"
+
+extern char sourcePathSeperator;
+extern char destPathSeperator;
 
 bool parse_filespec()
 {
   char *p;
+
+  p=strchr(buf,0x9b);
+
+  // Remove trailing EOL
+  if (p!=NULL)
+      *p=0x00;
+
   // Find comma.
   p=strtok(buf,",");
   
@@ -38,10 +49,6 @@ bool parse_filespec()
 
   strcpy(destDeviceSpec,p);
   
-  // Put EOLs on the end.
-  sourceDeviceSpec[strlen(sourceDeviceSpec)]=0x9B;
-  destDeviceSpec[strlen(destDeviceSpec)]=0x9B;
-
   // Check for valid device name chars
   if (sourceDeviceSpec[0]<0x41 || sourceDeviceSpec[0]>0x5A)
     return false;
@@ -62,5 +69,16 @@ bool parse_filespec()
   if (destDeviceSpec[1] != ':')
     destUnit=destDeviceSpec[1]-0x30;
 
+  // Detect the path seperator
+  detect_seperator();
+
+  // If no filename on end of seperator, append it from source.
+  /* if (destDeviceSpec[strlen(destDeviceSpec)]==0x00) */
+  /*     strcat(destDeviceSpec,strrchr(sourceDeviceSpec,sourcePathSeperator)+1); */
+  
+  // Append EOL to each
+  strcat(sourceDeviceSpec,"\x9b");
+  strcat(destDeviceSpec,"\x9b");
+  
   return true;
 }

@@ -14,7 +14,7 @@
 #ifndef CONTEXT_H
 #define CONTEXT_H
 
-extern char buf[8192];
+extern char buf[16384];
 extern unsigned char sourceUnit;
 extern unsigned char destUnit;
 extern unsigned short dirPos;
@@ -23,5 +23,7 @@ extern char wildcardPath[256];
 extern char sourceDeviceSpec[256];
 extern char destDeviceSpec[256];
 extern unsigned char i;
+extern char* sourceDevice_pos;
+extern char* destDevice_pos;
 
 #endif /* CONTEXT_H */
