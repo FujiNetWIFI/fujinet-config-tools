@@ -21,6 +21,8 @@
 #include "conio.h"
 #include "err.h"
 
+char buf[80];
+
 /**
  * Read Device Slots
  */
@@ -39,6 +41,11 @@ void reset(void)
   if (OS.dcb.dstats!=1)
     {
       err_sio();
+      if (!_is_cmdline_dos())
+        {
+          print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
+          get_line(buf,sizeof(buf));
+        }
       exit(OS.dcb.dstats);
     }
 }

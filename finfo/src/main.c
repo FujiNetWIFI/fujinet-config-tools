@@ -46,7 +46,7 @@ union
 /**
  * Read Device Slots
  */
-void percom_read(unsigned char dunit)
+unsigned char percom_read(unsigned char dunit)
 {
   // Read Drive Tables
   OS.dcb.ddevic=0x31;
@@ -62,8 +62,8 @@ void percom_read(unsigned char dunit)
   if (OS.dcb.dstats!=1)
     {
       err_sio();
-      exit(OS.dcb.dstats);
     }
+  return OS.dcb.dstats;
 }
 
 /**
@@ -218,6 +218,7 @@ void finfo(void)
 int main(int argc, char* argv[])
 {
   unsigned char dunit=0;
+  unsigned char err=0;
 
   OS.lmargn=2;
 
@@ -241,9 +242,10 @@ int main(int argc, char* argv[])
 	dunit=buf[0]-'0';
     }
 
-  percom_read(dunit);
+  err=percom_read(dunit);
 
-  finfo();
+  if (err==1)
+    finfo();
 
   if (!_is_cmdline_dos())
     {
@@ -251,5 +253,5 @@ int main(int argc, char* argv[])
       get_line(buf,sizeof(buf));
     }
   
-  return(0);
+  return err==1 ? 0 : err;
 }

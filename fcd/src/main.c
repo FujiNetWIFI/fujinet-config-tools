@@ -21,7 +21,7 @@
 unsigned char buf[256];
 unsigned char i=0;
 
-void fcd(unsigned char hs, const char* prefix)
+unsigned char fcd(unsigned char hs, const char* prefix)
 {
   OS.dcb.ddevic=0x70;
   OS.dcb.dunit=1;
@@ -36,8 +36,8 @@ void fcd(unsigned char hs, const char* prefix)
   if (OS.dcb.dstats!=1)
     {
       err_sio();
-      exit(OS.dcb.dstats);
     }
+  return OS.dcb.dstats;
 }
 
 int main(int argc, char* argv[])
@@ -45,6 +45,7 @@ int main(int argc, char* argv[])
   unsigned char i;
   char *tokens[2];
   unsigned char hs;
+  unsigned char err;
   
   OS.lmargn=2;
   
@@ -72,15 +73,23 @@ int main(int argc, char* argv[])
   if (tokens[0]==NULL)
     {
       print("HOST SLOT REQUIRED\x9b");
-      return(1);
+      err=132;
     }
   else if (hs<1 || hs>8)
     {
       print("INVALID HOST SLOT NUMBER\x9b");
-      return(1);
+      err=160;
+    }
+  else
+    {
+      err=fcd(hs-1,tokens[1]);
     }
 
-  fcd(hs-1,tokens[1]);
+  if (err!=1 && !_is_cmdline_dos())
+    {
+      print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
+      get_line(buf,sizeof(buf));
+    }
   
-  return(0);
+  return err==1 ? 0 : err;
 }

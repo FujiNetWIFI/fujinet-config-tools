@@ -86,10 +86,11 @@ int main(int argc, char* argv[])
   if (port<1)
     {
       print("INVALID PORT NUMBER.\x9b");
-      return(1);
+      err=1;
     }
 
-  err=listen_port(port);
+  if (!err)
+    err=listen_port(port);
   
   if (!_is_cmdline_dos())
     {
@@ -97,5 +98,5 @@ int main(int argc, char* argv[])
       get_line(buf,sizeof(buf));
     }
   
-  return(err);
+  return err==1 ? 0 : err;
 }

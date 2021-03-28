@@ -30,6 +30,18 @@ union
 } hostSlots;
 
 /**
+ * Wait for keypress
+ */
+void pause(void)
+{
+  if (!_is_cmdline_dos())
+    {
+      print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
+      get_line(buf,sizeof(buf));
+    }
+}
+
+/**
  * Read host slots
  */
 void host_read(void)
@@ -48,6 +60,7 @@ void host_read(void)
   if (OS.dcb.dstats!=1)
     {
       err_sio();
+      pause();
       exit(OS.dcb.dstats);
     }
 }
@@ -71,6 +84,7 @@ void host_mount(unsigned char c)
       if (OS.dcb.dstats!=1)
 	{
 	  err_sio();
+	  pause();
 	  exit(OS.dcb.dstats);
 	}
     }
@@ -95,6 +109,7 @@ void directory_open(unsigned char hs, char* b)
   if (OS.dcb.dstats!=1)
     {
       err_sio();
+      pause();
       exit(OS.dcb.dstats);
     }
 }
@@ -116,6 +131,7 @@ void directory_read(unsigned char hs, unsigned char len)
   if (OS.dcb.dstats!=1)
     {
       err_sio();
+      pause();
       exit(OS.dcb.dstats);
     }
 }
@@ -137,6 +153,7 @@ void directory_close(unsigned char hs)
   if (OS.dcb.dstats!=1)
     {
       err_sio();
+      pause();
       exit(OS.dcb.dstats);
     }
 }
@@ -210,6 +227,7 @@ int main(int argc, char* argv[])
   if ((slot<0x31) || (slot>0x38))
     {
       print("INVALID SLOT NUMBER\x9b"); 
+      pause();
       return 1;
     }
 
@@ -220,6 +238,7 @@ int main(int argc, char* argv[])
   if (comma_pos == NULL)
     {
       print("NO COMMA.\x9b");
+      pause();
       return 1;
     }
 
@@ -260,4 +279,5 @@ int main(int argc, char* argv[])
     }
 
   directory_close(slot);
+  pause();
 }

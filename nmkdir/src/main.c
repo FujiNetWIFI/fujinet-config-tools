@@ -23,7 +23,7 @@ unsigned char daux1=0;
 unsigned char daux2=0;
 unsigned char i=0;
 
-void nmkdir(unsigned char unit)
+unsigned char nmkdir(unsigned char unit)
 {
   OS.dcb.ddevic=0x71;
   OS.dcb.dunit=unit;
@@ -39,14 +39,15 @@ void nmkdir(unsigned char unit)
   if (OS.dcb.dstats!=1)
     {
       err_sio();
-      exit(OS.dcb.dstats);
     }
+  return OS.dcb.dstats;
 }
 
 int main(int argc, char* argv[])
 {
   unsigned char tmp[2]={0,0};
   unsigned char u=1;
+  unsigned char err=0;
   
   OS.lmargn=2;
   
@@ -83,7 +84,7 @@ int main(int argc, char* argv[])
   else if (buf[2]==':')
     u=buf[1]-0x30;
 
-  nmkdir(u);
+  err=nmkdir(u);
 
   if (!_is_cmdline_dos())
     {
@@ -91,5 +92,5 @@ int main(int argc, char* argv[])
       get_line(buf,sizeof(buf));
     }
 
-  return(0);
+  return err==1 ? 0 : err;
 }

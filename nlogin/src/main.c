@@ -21,7 +21,7 @@
 unsigned char i=0;
 char buf[8];
 
-void nlogin(unsigned char unit, char *login, char *password)
+unsigned char nlogin(unsigned char unit, char *login, char *password)
 {
   OS.dcb.ddevic=0x71;
   OS.dcb.dunit=unit;
@@ -36,7 +36,7 @@ void nlogin(unsigned char unit, char *login, char *password)
   if (OS.dcb.dstats!=1)
     {
       err_sio();
-      exit(OS.dcb.dstats);
+      return OS.dcb.dstats;
     }
 
   OS.dcb.dcomnd=0xFE;
@@ -47,8 +47,10 @@ void nlogin(unsigned char unit, char *login, char *password)
   if (OS.dcb.dstats!=1)
     {
       err_sio();
-      exit(OS.dcb.dstats);
+      return OS.dcb.dstats;
     }
+
+  return 0;
 }
 
 void opts(char* argv0)
@@ -63,6 +65,7 @@ int main(int argc, char* argv[])
   char *login;
   char *password;
   unsigned char u=1;
+  unsigned char err=0;
   
   OS.lmargn=2;
   
@@ -101,20 +104,17 @@ int main(int argc, char* argv[])
   else if (deviceSpec[2]==':')
     u=deviceSpec[1]-0x30;
 
-  nlogin(u,login,password);
+  err=nlogin(u,login,password);
 
   if (!_is_cmdline_dos())
     {
       free(deviceSpec);
       free(login);
       free(password);
-    }
 
-  if (!_is_cmdline_dos())
-    {
       print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
       get_line(buf,sizeof(buf));
     }
   
-  return(0);
+  return err==1 ? 0 : err;
 }

@@ -21,7 +21,7 @@
 unsigned char buf[256];
 unsigned char unit;
 
-void npwd(void)
+unsigned char npwd(void)
 {
   OS.dcb.ddevic=0x71;
   OS.dcb.dunit=unit;
@@ -37,12 +37,14 @@ void npwd(void)
   if (OS.dcb.dstats!=1)
     {
       err_sio();
-      exit(OS.dcb.dstats);
     }
+  return OS.dcb.dstats;
 }
 
 int main(int argc, char* argv[])
 {  
+  unsigned char err=0;
+
   OS.lmargn=2;
 
   if (argc<2)
@@ -54,7 +56,7 @@ int main(int argc, char* argv[])
   else
     unit=1;
   
-  npwd();
+  err=npwd();
   
   if (buf[0]==0x00)
     print("NO PREFIX SET.\x9b");
@@ -69,5 +71,5 @@ int main(int argc, char* argv[])
       get_line(buf,sizeof(buf));
     }
   
-  return(0);
+  return err==1 ? 0 : err;
 }
