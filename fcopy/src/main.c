@@ -25,7 +25,7 @@ unsigned char dest_buf[128];
 unsigned char copy_buf[256];
 unsigned char i=0;
 
-void copy()
+unsigned char copy(void)
 {
   OS.dcb.ddevic=0x70;
   OS.dcb.dunit=1;
@@ -41,8 +41,8 @@ void copy()
   if (OS.dcb.dstats!=1)
     {
       err_sio();
-      exit(OS.dcb.dstats);
     }
+  return OS.dcb.dstats;
 }
 
 bool parse_cmdline(char* argv[])
@@ -91,6 +91,7 @@ bool parse_cmdline(char* argv[])
 int main(int argc, char* argv[])
 {
   char tmp[4];
+  unsigned char err=0;
   
   OS.lmargn=2;
 
@@ -128,9 +129,14 @@ int main(int argc, char* argv[])
 
   print("Copying...");
   
-  copy();
+  err=copy();
 
   print("\x9b");
+  if (err!=1 && !_is_cmdline_dos())
+    {
+      print("PRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
+      get_line(linebuf,sizeof(linebuf));
+    }
   
-  return 0;
+  return err==1 ? 0 : err;
 }

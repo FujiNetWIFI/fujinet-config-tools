@@ -23,6 +23,18 @@ unsigned char daux1=0;
 unsigned char daux2=0;
 unsigned char i=0;
 
+/**
+ * Wait for keypress
+ */
+void pause(void)
+{
+  if (!_is_cmdline_dos())
+    {
+      print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
+      get_line(buf,sizeof(buf));
+    }
+}
+
 void nopen(unsigned char unit)
 {
   OS.dcb.ddevic=0x71;
@@ -39,6 +51,7 @@ void nopen(unsigned char unit)
   if (OS.dcb.dstats!=1)
     {
       err_sio();
+      pause();
       exit(OS.dcb.dstats);
     }
 }
@@ -59,6 +72,7 @@ void nclose(unsigned char unit)
   if (OS.dcb.dstats!=1)
     {
       err_sio();
+      pause();
       exit(OS.dcb.dstats);
     }
 }
@@ -79,6 +93,7 @@ void nread(unsigned char unit, unsigned short len)
   if (OS.dcb.dstats!=1)
     {
       err_sio();
+      pause();
       exit(OS.dcb.dstats);
     }
 }
@@ -99,6 +114,7 @@ void nstatus(unsigned char unit)
   if (OS.dcb.dstats!=1)
     {
       err_sio();
+      pause();
       exit(OS.dcb.dstats);
     }
 }
@@ -165,11 +181,7 @@ int main(int argc, char* argv[])
 
   nclose(u);
 
-  if (!_is_cmdline_dos())
-    {
-      print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
-      get_line(buf,sizeof(buf));
-    }
+  pause();
   
   return(0);
 }

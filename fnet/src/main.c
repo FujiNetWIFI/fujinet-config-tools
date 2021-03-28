@@ -34,6 +34,18 @@ union
 } netConfig;
 
 /**
+ * Wait for keypress
+ */
+void pause(void)
+{
+  if (!_is_cmdline_dos())
+    {
+      print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
+      get_line(buf,sizeof(buf));
+    }
+}
+
+/**
  * main
  */
 int main(int argc, char* argv[])
@@ -76,6 +88,7 @@ int main(int argc, char* argv[])
   if (tokens[0]==NULL)
     {
       print("NETWORK NAME REQUIRED\x9b");
+      pause();
       return(1);
     }
   
@@ -127,11 +140,6 @@ int main(int argc, char* argv[])
 
   OS.soundr=1;
 
-  if (!_is_cmdline_dos())
-    {
-      print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
-      get_line(buf,sizeof(buf));
-    }  
-  
-  return wifiStatus;  
+  pause();
+  return OS.dcb.dstats!=1 ? OS.dcb.dstats : wifiStatus;
 }

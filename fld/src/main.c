@@ -37,7 +37,7 @@ union
 /**
  * Read Device Slots
  */
-void disk_read(void)
+unsigned char disk_read(void)
 {
   // Read Drive Tables
   OS.dcb.ddevic=0x70;
@@ -53,8 +53,8 @@ void disk_read(void)
   if (OS.dcb.dstats!=1)
     {
       err_sio();
-      exit(OS.dcb.dstats);
     }
+  return OS.dcb.dstats;
 }
 
 /**
@@ -63,41 +63,45 @@ void disk_read(void)
 int main(void)
 {
   unsigned char i=0;
+  unsigned char err=0;
 
   OS.lmargn=2;
   
   // Read in host and device slots from FujiNet
-  disk_read();
+  err=disk_read();
 
-  print("\x9b");
-
-  for (i=0;i<8;i++)
+  if (err==1)
     {
-      unsigned char n=i+0x31;
-      unsigned char hs=deviceSlots.slot[i].hostSlot+0x31;
-      unsigned char m=(deviceSlots.slot[i].mode==0x02 ? 'W' : 'R');
+      print("\x9b");
 
-      if (deviceSlots.slot[i].hostSlot!=0xFF)
-	{
-	  print("D");
-	  printc(&n);
-	  print(": ");
-	  print("(");
-	  printc(&hs);
-	  print(") ");
-	  print("(");
-	  printc(&m);
-	  print(") ");
-	  print(deviceSlots.slot[i].file);
-	  print("\x9b");
-	}
-      else
-	{
-	  print("D");
-	  printc(&n);
-	  print(": ");
-	  print("Empty\x9b");
-	}
+      for (i=0;i<8;i++)
+        {
+          unsigned char n=i+0x31;
+          unsigned char hs=deviceSlots.slot[i].hostSlot+0x31;
+          unsigned char m=(deviceSlots.slot[i].mode==0x02 ? 'W' : 'R');
+
+          if (deviceSlots.slot[i].hostSlot!=0xFF)
+            {
+              print("D");
+              printc(&n);
+              print(": ");
+              print("(");
+              printc(&hs);
+              print(") ");
+              print("(");
+              printc(&m);
+              print(") ");
+              print(deviceSlots.slot[i].file);
+              print("\x9b");
+            }
+          else
+            {
+              print("D");
+              printc(&n);
+              print(": ");
+              print("Empty\x9b");
+            }
+        }
     }
 
   print("\x9b");
@@ -108,5 +112,5 @@ int main(void)
       get_line(buf,sizeof(buf));
     }
   
-  return(0);
+  return err==1 ? 0 : err;
 }

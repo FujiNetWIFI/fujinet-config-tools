@@ -31,6 +31,18 @@ union
 } hostSlots;
 
 /**
+ * Wait for keypress
+ */
+void pause(void)
+{
+  if (!_is_cmdline_dos())
+    {
+      print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
+      get_line(buf,sizeof(buf));
+    }
+}
+
+/**
  * Read host slots
  */
 void host_read(void)
@@ -49,6 +61,7 @@ void host_read(void)
   if (OS.dcb.dstats!=1)
     {
       err_sio();
+      pause();
       exit(OS.dcb.dstats);
     }
 }
@@ -73,6 +86,7 @@ void host_mount(unsigned char c)
       if (OS.dcb.dstats!=1)
 	{
 	  err_sio();
+	  pause();
 	  exit(OS.dcb.dstats);
 	} 
     }
@@ -96,6 +110,7 @@ void host_write(void)
   if (OS.dcb.dstats!=1)
     {
       err_sio();
+      pause();
       exit(OS.dcb.dstats);
     }
 }
@@ -158,6 +173,7 @@ int main(int argc, char* argv[])
   if (s<1 || s>8)
     {
       print("INVALID SLOT NUMBER.\x9b");
+      pause();
       return(1);
     }
 
@@ -191,11 +207,6 @@ int main(int argc, char* argv[])
   // Mount server
   host_mount(s);
 
-  if (!_is_cmdline_dos())
-    {
-      print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
-      get_line(buf,sizeof(buf));
-    }
-  
+  pause();
   return(0);
 }

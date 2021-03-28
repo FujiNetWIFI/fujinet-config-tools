@@ -55,7 +55,7 @@ void itoa_hex(int val, char *buf)
 /**
  * Read Device Slots
  */
-void adapter_config(void)
+unsigned char adapter_config(void)
 {
   OS.dcb.ddevic=0x70;
   OS.dcb.dunit=1;
@@ -70,8 +70,8 @@ void adapter_config(void)
   if (OS.dcb.dstats!=1)
     {
       err_sio();
-      exit(OS.dcb.dstats);
     }
+  return OS.dcb.dstats;
 }
 
 /**
@@ -125,53 +125,56 @@ void print_mac(unsigned char* mac)
  */
 int main(void)
 {
+  unsigned char err=0;
 
   OS.lmargn=2;
   
   // Read adapter config
-  adapter_config();
+  err = adapter_config();
 
-  print("\x9b");
+  if (err==1) {
+    print("\x9b");
 
-  print("           SSID: ");
-  print(adapterConfig.ssid);
-  print("\x9b");
+    print("           SSID: ");
+    print(adapterConfig.ssid);
+    print("\x9b");
 
-  print("       Hostname: ");
-  print(adapterConfig.hostname);
-  print("\x9b");
-  
-  print("     IP Address: ");
-  print_address(adapterConfig.localIP);
-  print("\x9b");
+    print("       Hostname: ");
+    print(adapterConfig.hostname);
+    print("\x9b");
+    
+    print("     IP Address: ");
+    print_address(adapterConfig.localIP);
+    print("\x9b");
 
-  print("Gateway Address: ");
-  print_address(adapterConfig.gateway);
-  print("\x9b");
+    print("Gateway Address: ");
+    print_address(adapterConfig.gateway);
+    print("\x9b");
 
-  print("    DNS Address: ");
-  print_address(adapterConfig.dnsIP);
-  print("\x9b");
-  
-  print("        Netmask: ");
-  print_address(adapterConfig.netmask);
-  print("\x9b");
+    print("    DNS Address: ");
+    print_address(adapterConfig.dnsIP);
+    print("\x9b");
+    
+    print("        Netmask: ");
+    print_address(adapterConfig.netmask);
+    print("\x9b");
 
-  print("    MAC Address: ");
-  print_mac(adapterConfig.macAddress);
-  print("\x9b");
+    print("    MAC Address: ");
+    print_mac(adapterConfig.macAddress);
+    print("\x9b");
 
-  print("          BSSID: ");
-  print_mac(adapterConfig.bssid);
-  print("\x9b");
+    print("          BSSID: ");
+    print_mac(adapterConfig.bssid);
+    print("\x9b");
 
-  print("FCONFIG Version: ");
-  print(FCONFIG_VERSION_FULL);
-  print("\x9b");
+    print("FCONFIG Version: ");
+    print(FCONFIG_VERSION_FULL);
+    print("\x9b");
 
-  print("  Fuji Firmware: ");
-  print(adapterConfig.firmware);
-  print("\x9b");
+    print("  Fuji Firmware: ");
+    print(adapterConfig.firmware);
+    print("\x9b");
+  }
 
   if (!_is_cmdline_dos())
     {
@@ -179,5 +182,5 @@ int main(void)
       get_line(buf,sizeof(buf));
     }
   
-  return(0);
+  return err==1 ? 0 : err;
 }

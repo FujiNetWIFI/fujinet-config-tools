@@ -38,7 +38,7 @@ unsigned char num_networks[4];
 /**
  * Return number of networks
  */
-void scan(void)
+unsigned char scan(void)
 {
   OS.dcb.ddevic=0x70;
   OS.dcb.dunit=1;
@@ -53,14 +53,14 @@ void scan(void)
   if (OS.dcb.dstats!=0x01)
     {
       err_sio();
-      exit(OS.dcb.dstats);
     }
+  return OS.dcb.dstats;
 }
 
 /**
  * Return Network entry from last scan
  */
-void scan_result(unsigned char n)
+unsigned char scan_result(unsigned char n)
 {
   OS.dcb.ddevic=0x70;
   OS.dcb.dunit=1;
@@ -75,8 +75,8 @@ void scan_result(unsigned char n)
   if (OS.dcb.dstats!=0x01)
     {
       err_sio();
-      exit(OS.dcb.dstats);
     }
+  return OS.dcb.dstats;
 }
 
 /**
@@ -85,6 +85,7 @@ void scan_result(unsigned char n)
 int main(void)
 {
   unsigned char i=0;
+  unsigned char err=0;
 
   OS.lmargn=2;
   
@@ -93,23 +94,28 @@ int main(void)
   OS.lmargn=2;
   
   print("Scanning...\x9b");
-  scan();
+  err=scan();
 
-  for (i=0;i<num_networks[0];i++)
+  if (err==1)
     {
-      scan_result(i);
-      print("* ");
-      print(ssidInfo.ssid);
-      print("\x9b");
+      for (i=0;i<num_networks[0];i++)
+      {
+        err=scan_result(i);
+        if (err!=1)
+          break;
+        print("* ");
+        print(ssidInfo.ssid);
+        print("\x9b");
+      }
     }
 
   print("\x9b");
 
   if (!_is_cmdline_dos())
     {
-      print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
+      print("PRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
       get_line(buf,sizeof(buf));
     }
   
-  return(0);
+  return err==1 ? 0 : err;
 }

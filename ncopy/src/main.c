@@ -43,6 +43,8 @@ char buf[8];
 
 int main(int argc, char* argv[])
 {
+  unsigned char err=0;
+
   OS.lmargn=2;
 
   // Args processing.  
@@ -70,11 +72,11 @@ int main(int argc, char* argv[])
     }
 
   if (valid_cio_device(sourceDeviceSpec[0]) && valid_network_device(destDeviceSpec[0]))
-    return copy_d_to_n();
+    err=copy_d_to_n();
   else if (valid_network_device(sourceDeviceSpec[0]) && valid_cio_device(destDeviceSpec[0]))
-    return copy_n_to_d();
+    err=copy_n_to_d();
   else if (valid_network_device(sourceDeviceSpec[0]) && valid_network_device(destDeviceSpec[0]))
-    return copy_n_to_n();
+    err=copy_n_to_n();
 
   if (!_is_cmdline_dos())
     {
@@ -82,4 +84,5 @@ int main(int argc, char* argv[])
       get_line(buf,sizeof(buf));
     }
   
+  return err==1 ? 0 : err;
 }
