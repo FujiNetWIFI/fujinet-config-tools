@@ -23,79 +23,18 @@
 
 unsigned char buf[8];
 
-union
-{
-  unsigned char host[8][32];
-  unsigned char rawData[256];
-} hostSlots;
-
-union
-{
-  struct
-  {
-    unsigned char hostSlot;
-    unsigned char mode;
-    unsigned char file[36];
-  } slot[8];
-  unsigned char rawData[304];
-} deviceSlots;
-
 /**
  * Remount all disk slots
  */
 void remount_all(void)
 {
-  unsigned char c;
-
   OS.dcb.ddevic=0x70;
   OS.dcb.dunit=1;
-  OS.dcb.dcomnd=0xF4; // Get host slots
-  OS.dcb.dstats=0x40;
-  OS.dcb.dbuf=&hostSlots.rawData;
+  OS.dcb.dcomnd=0xD7; // Mount All
+  OS.dcb.dstats=0x00;
   OS.dcb.dtimlo=0x0f;
-  OS.dcb.dbyt=256;
-  OS.dcb.daux=0;
+  OS.dcb.dbyt=OS.dcb.daux=0;
   siov();
-
-  // Read Device slots
-  OS.dcb.ddevic=0x70;
-  OS.dcb.dunit=1;
-  OS.dcb.dcomnd=0xF2;
-  OS.dcb.dstats=0x40;
-  OS.dcb.dbuf=&deviceSlots.rawData;
-  OS.dcb.dtimlo=0x0f;
-  OS.dcb.dbyt=sizeof(deviceSlots.rawData);
-  OS.dcb.daux=0;
-  siov();
-  
-  for (c=0;c<8;c++)
-    {
-      if (deviceSlots.slot[c].hostSlot!=0xFF)
-	{
-	  // Mount host slot
-	  OS.dcb.ddevic=0x70;
-	  OS.dcb.dunit=1;
-	  OS.dcb.dcomnd=0xF9;
-	  OS.dcb.dstats=0x00;
-	  OS.dcb.dbuf=NULL;
-	  OS.dcb.dtimlo=0x01;
-	  OS.dcb.dbyt=0;
-	  OS.dcb.daux=deviceSlots.slot[c].hostSlot;
-	  siov();
-
-	  // Mount device slot
-	  OS.dcb.ddevic=0x70;
-	  OS.dcb.dunit=1;
-	  OS.dcb.dcomnd=0xF8;
-	  OS.dcb.dstats=0x00;
-	  OS.dcb.dbuf=NULL;
-	  OS.dcb.dtimlo=0x01;
-	  OS.dcb.dbyt=0;
-	  OS.dcb.daux1=c;
-	  OS.dcb.daux2=deviceSlots.slot[c].mode;
-	  siov();
-	}
-    }
 }
 
 /**
