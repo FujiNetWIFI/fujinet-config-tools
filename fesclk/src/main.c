@@ -104,5 +104,5 @@ int main(int argc, char* argv[])
       get_line(buf,sizeof(buf));
     }
   
-  return(err);
+  return err==1 ? 0 : err;
 }

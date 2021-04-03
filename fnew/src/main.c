@@ -54,6 +54,18 @@ union
 } newDisk;
 
 /**
+ * Wait for keypress
+ */
+void pause(void)
+{
+  if (!_is_cmdline_dos())
+    {
+      print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
+      get_line(buf,sizeof(buf));
+    }
+}
+
+/**
  * Read host slots
  */
 void host_read(void)
@@ -72,6 +84,7 @@ void host_read(void)
   if (OS.dcb.dstats!=1)
     {
       err_sio();
+      pause();
       exit(OS.dcb.dstats);
     }
 }
@@ -95,6 +108,7 @@ void disk_read(void)
   if (OS.dcb.dstats!=1)
     {
       err_sio();
+      pause();
       exit(OS.dcb.dstats);
     }
 }
@@ -117,6 +131,7 @@ void disk_write(void)
   if (OS.dcb.dstats!=1)
     {
       err_sio();
+      pause();
       exit(OS.dcb.dstats);
     }
 }
@@ -146,6 +161,7 @@ void disk_create(unsigned short ns, unsigned short ss, unsigned char hs, unsigne
   if (OS.dcb.dstats!=1)
     {
       err_sio();
+      pause();
       exit(OS.dcb.dstats);
     }
 }
@@ -169,6 +185,7 @@ void host_mount(unsigned char c)
       if (OS.dcb.dstats!=1)
 	{
 	  err_sio();
+	  pause();
 	  exit(OS.dcb.dstats);
 	}
     }
@@ -192,6 +209,7 @@ void disk_mount(unsigned char c, unsigned char o)
   if (OS.dcb.dstats!=1)
     {
       err_sio();
+      pause();
       exit(OS.dcb.dstats);
     }
 }
@@ -215,6 +233,7 @@ void set_filename(char* filename, unsigned char slot)
   if (OS.dcb.dstats!=1)
     {
       err_sio();
+      pause();
       exit(OS.dcb.dstats);
     }
 }
@@ -297,6 +316,7 @@ int main(int argc, char* argv[])
       tokens[3]==NULL)
     {
       print("ALL ARGUMENTS REQUIRED");
+      pause();
       return(1);
     }
 
@@ -309,12 +329,14 @@ int main(int argc, char* argv[])
   if (ds<1 || ds>8)
     {
       print("INVALID DRIVE SLOT NUMBER.\x9b");
+      pause();
       return(1);
     }
 
   if (hs<1 || hs>8)
     {
       print("INVALID HOST SLOT NUMBER.\x9b");
+      pause();
       return(1);
     }
   
@@ -396,11 +418,6 @@ int main(int argc, char* argv[])
   print(tokens[3]);
   print("\x9b");
 
-  if (!_is_cmdline_dos())
-    {
-      print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
-      get_line(buf,sizeof(buf));
-    }  
-  
+  pause();
   return 0;
 }

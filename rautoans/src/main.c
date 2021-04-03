@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
 	}
     }
   
-  auto_ans(o);
+  err=auto_ans(o);
   
   if (!_is_cmdline_dos())
     {
@@ -94,5 +94,5 @@ int main(int argc, char* argv[])
       get_line(buf,sizeof(buf));
     }
   
-  return(err);
+  return(err != 1);
 }

@@ -23,7 +23,7 @@ unsigned char daux1=0;
 unsigned char daux2=0;
 unsigned char i=0;
 
-void ndel(unsigned char unit)
+unsigned char ndel(unsigned char unit)
 {
   OS.dcb.ddevic=0x71;
   OS.dcb.dunit=unit;
@@ -39,17 +39,18 @@ void ndel(unsigned char unit)
   if (OS.dcb.dstats!=1)
     {
       err_sio();
-      exit(OS.dcb.dstats);
     }
+  return OS.dcb.dstats;
 }
 
 int main(int argc, char* argv[])
 {
   unsigned char tmp[2]={0,0};
   unsigned char u=1;
-  
+  unsigned char err=0;
+
   OS.lmargn=2;
-  
+
   if (_is_cmdline_dos())
     {
       if (argc<2)
@@ -83,13 +84,13 @@ int main(int argc, char* argv[])
   else if (buf[2]==':')
     u=buf[1]-0x30;
 
+  err=ndel(u);
+
   if (!_is_cmdline_dos())
     {
       print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
       get_line(buf,sizeof(buf));
     }
-  
-  ndel(u);
-  
-  return(0);
+
+  return err==1 ? 0 : err;
 }

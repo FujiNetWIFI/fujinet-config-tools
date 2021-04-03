@@ -45,6 +45,8 @@ unsigned char i;
 
 int main(int argc, char* argv[])
 {
+  unsigned char err=0;
+
   OS.lmargn=2;
   // Args processing.
   if (argc>1)
@@ -76,4 +78,12 @@ int main(int argc, char* argv[])
     return copy_n(false);
   else if (valid_network_device(sourceDeviceSpec[0]) && valid_network_device(destDeviceSpec[0]))
     return copy_n(true);
+
+  if (!_is_cmdline_dos())
+    {
+      print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
+      get_line(buf,sizeof(buf));
+    }
+  
+  return err==1 ? 0 : err;
 }
