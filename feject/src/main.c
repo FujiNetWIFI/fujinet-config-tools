@@ -148,6 +148,28 @@ void disk_write(void)
 }
 
 /**
+ * Mount all
+ */
+void mount_all(void)
+{
+  OS.dcb.ddevic=0x70;
+  OS.dcb.dunit=1;
+  OS.dcb.dcomnd=0xD7;
+  OS.dcb.dstats=0x00;
+  OS.dcb.dbuf=NULL;
+  OS.dcb.dtimlo=0x0f;
+  OS.dcb.dbyt=OS.dcb.daux=0;
+  siov();
+
+  if (OS.dcb.dstats!=1)
+    {
+      err_sio();
+      pause();
+      exit(OS.dcb.dstats);
+    }  
+}
+
+/**
  * show options
  */
 void opts(char* argv[])
@@ -218,5 +240,7 @@ int main(int argc, char* argv[])
       pause();
     }
 
+  mount_all();
+  
   return(0);
 }

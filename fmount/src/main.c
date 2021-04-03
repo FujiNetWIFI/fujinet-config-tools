@@ -196,6 +196,28 @@ void disk_mount(unsigned char c, unsigned char o)
 }
 
 /**
+ * Mount all
+ */
+void mount_all(void)
+{
+  OS.dcb.ddevic=0x70;
+  OS.dcb.dunit=1;
+  OS.dcb.dcomnd=0xD7;
+  OS.dcb.dstats=0x00;
+  OS.dcb.dbuf=NULL;
+  OS.dcb.dtimlo=0x0f;
+  OS.dcb.dbyt=OS.dcb.daux=0;
+  siov();
+
+  if (OS.dcb.dstats!=1)
+    {
+      err_sio();
+      pause();
+      exit(OS.dcb.dstats);
+    }  
+}
+
+/**
  * show options
  */
 void opts(char* argv[])
@@ -347,6 +369,8 @@ int main(int argc, char* argv[])
   print(tokens[3]);
   print("\x9b\x9b");
 
+  mount_all();
+  
   pause();
   return(0);
 }
