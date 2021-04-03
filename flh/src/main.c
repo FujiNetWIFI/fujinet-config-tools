@@ -58,37 +58,33 @@ unsigned char host_read(void)
 int main(void)
 {
   unsigned char i=0;
-  unsigned char err=0;
 
   OS.lmargn=2;
   
   // Read in host and device slots from FujiNet
   host_read();
 
-  if (err==1)
+  print("\x9b");
+  
+  for (i=0;i<8;i++)
     {
-      print("\x9b");
-
-      for (i=0;i<8;i++)
-        {
-          unsigned char n=i+0x31;
-
-          if (hostSlots.host[i][0]!=0x00)
-            {
-              printc(&n);
-              print(": ");
-              print(hostSlots.host[i]);
-              print("\x9b");
-            }
-          else
-            {
-              printc(&n);
-              print(": ");
-              print("Empty\x9b");
-            }
-        }
+      unsigned char n=i+0x31;
+      
+      if (hostSlots.host[i][0]!=0x00)
+	{
+	  printc(&n);
+	  print(": ");
+	  print(hostSlots.host[i]);
+	  print("\x9b");
+	}
+      else
+	{
+	  printc(&n);
+	  print(": ");
+	  print("Empty\x9b");
+	}
     }
-
+  
   print("\x9b");
   
   if (!_is_cmdline_dos())
@@ -97,5 +93,5 @@ int main(void)
       get_line(buf,sizeof(buf));
     }  
   
-  return err==1 ? 0 : err;
+  return 0;
 }
