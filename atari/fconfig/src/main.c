@@ -28,7 +28,7 @@ union
 {
   struct
   {
-    char ssid[32];
+    char ssid[33];
     char hostname[64];
     unsigned char localIP[4];
     unsigned char gateway[4];
@@ -38,7 +38,7 @@ union
     unsigned char bssid[6];
     char firmware[15];
   };
-  unsigned char rawData[139];
+  unsigned char rawData[140];
 } adapterConfig;
 
 /**
