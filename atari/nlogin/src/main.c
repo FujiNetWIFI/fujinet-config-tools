@@ -20,6 +20,9 @@
 
 unsigned char i=0;
 char buf[8];
+char deviceSpec[256];
+char login[256];
+char password[256];
 
 unsigned char nlogin(unsigned char unit, char *login, char *password)
 {
@@ -61,9 +64,6 @@ void opts(char* argv0)
 
 int main(int argc, char* argv[])
 {
-  char *deviceSpec;
-  char *login;
-  char *password;
   unsigned char u=1;
   unsigned char err=0;
   
@@ -77,15 +77,12 @@ int main(int argc, char* argv[])
 	  return 0;
 	}
 
-      login = argv[2];
-      password = argv[3];
+      strcpy(login,argv[2]);
+      strcpy(password,argv[3]);
     }
   else
     {
       // DOS 2.0/MYDOS
-      deviceSpec = (char *)malloc(256);
-      login = (char *)malloc(256);
-      password = (char *)malloc(256);
       print("NLOGIN--DEVICE SPEC?\x9b");
       get_line(deviceSpec,128);
       print("\x9bLOGIN?\x9b");
@@ -108,10 +105,6 @@ int main(int argc, char* argv[])
 
   if (!_is_cmdline_dos())
     {
-      free(deviceSpec);
-      free(login);
-      free(password);
-
       print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
       get_line(buf,sizeof(buf));
     }

@@ -21,16 +21,18 @@
 #include "conio.h"
 #include "err.h"
 
-unsigned char buf[40];
+#define MAX_SSID_LEN 33 /* SSID + NULL */
+
+char buf[40];
 
 union 
 {
   struct
   {
-    char ssid[32];
+    char ssid[33];
     signed char rssi;
   };
-  unsigned char rawData[33];
+  unsigned char rawData[34];
 } ssidInfo;
 
 unsigned char num_networks[4];
