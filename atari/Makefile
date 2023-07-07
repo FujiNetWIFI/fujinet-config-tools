@@ -6,7 +6,8 @@
 
 TOOLS:= fcd fconfig fcopy feject fesclk fhost finfo fld flh fls fmall \
 	fmount fnet fnew freset fscan ncd ncopy ndel ndir nlogin \
-	nmkdir npwd nren nrmdir ntrans rautoans rbaudlok rlisten rsniff
+	nmkdir npwd nren nrmdir ntrans rautoans rbaudlok rlisten rsniff \
+	flobby
 
 TOPTARGETS := mostlyclean clean install zip zap
 

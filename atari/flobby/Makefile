@@ -9,25 +9,25 @@
  
 # Space or comma separated list of cc65 supported target platforms to build for.
 # Default: c64 (lowercase!)
-TARGETS := apple2
+TARGETS := atari
  
 # Name of the final, single-file executable.
 # Default: name of the current dir with target name appended
-PROGRAM := fconfig
+PROGRAM := flobby
  
 # Path(s) to additional libraries required for linking the program
 # Use only if you don't want to place copies of the libraries in SRCDIR
 # Default: none
 LIBS	:= 
 
-# Custom linker fconfiguration file
+# Custom linker configuration file
 # Use only if you don't want to place it in SRCDIR
 # Default: none
-CONFIG  := 
+CONFIG  :=
  
 # Additional C compiler flags and options.
 # Default: none
-CFLAGS  = -Os -DBUILD_APPLE2
+CFLAGS  = -Os
  
 # Additional assembler flags and options.
 # Default: none
@@ -36,6 +36,7 @@ ASFLAGS =
 # Additional linker flags and options.
 # Default: none
 LDFLAGS = $(LDFLAGS.$(TARGETS))
+LDFLAGS.atari = --mapfile flobby.map
  
 # Path to the directory containing C and ASM sources.
 # Default: src
@@ -208,7 +209,7 @@ TARGETLIST := $(subst $(COMMA),$(SPACE),$(TARGETS))
 ifeq ($(words $(TARGETLIST)),1)
  
 # Set PROGRAM to something like 'myprog.c64'.
-override PROGRAM := $(PROGRAM)
+override PROGRAM := $(PROGRAM).com
  
 # Set SOURCES to something like 'src/foo.c src/bar.s'.
 # Use of assembler files with names ending differently than .s is deprecated!
@@ -238,10 +239,10 @@ LIBS += $(wildcard $(SRCDIR)/$(TARGETLIST)/*.lib)
 CONFIG += $(wildcard $(SRCDIR)/$(TARGETLIST)/*.cfg)
 CONFIG += $(wildcard $(SRCDIR)/*.cfg)
  
-# Select CONFIG file to use. Target specific fconfigs have higher priority.
+# Select CONFIG file to use. Target specific configs have higher priority.
 ifneq ($(word 2,$(CONFIG)),)
   CONFIG := $(firstword $(CONFIG))
-  $(info Using fconfig file $(CONFIG) for linking)
+  $(info Using config file $(CONFIG) for linking)
 endif
  
 .SUFFIXES:
@@ -294,7 +295,7 @@ $(TARGETOBJDIR)/%.o: %.c | $(TARGETOBJDIR)
 vpath %.s $(SRCDIR)/$(TARGETLIST) $(SRCDIR)
  
 $(TARGETOBJDIR)/%.o: %.s | $(TARGETOBJDIR)
-	$(CC) -t $(CC65TARGET) -c --create-dep $(@:.o=.d) $(ASFLAGS) -o $@ $<
+	$(CC) -t $(CC65TARGET) -Wa -DDYN_DRV=0 -c --create-dep $(@:.o=.d) $(ASFLAGS) -o $@ $<
  
 vpath %.asm $(SRCDIR)/$(TARGETLIST) $(SRCDIR)
  
@@ -314,17 +315,12 @@ test: $(PROGRAM)
 	$(EMUCMD) $<
 	$(POSTEMUCMD)
  
-dist: $(PROGRAM)
-	     cp dist.apple2/bootable.po dist.apple2/fconfig.po
-	     java -jar dist.apple2/ac.jar -as dist.apple2/fconfig.po fconfig bin <fconfig
-
 clean:
 	$(call RMFILES,$(OBJECTS))
 	$(call RMFILES,$(DEPENDS))
 	$(call RMFILES,$(REMOVES))
 	$(call RMFILES,$(PROGRAM))
-	$(call RMFILES,*.map)
-
+ 
 else # $(words $(TARGETLIST)),1
  
 all test clean:
