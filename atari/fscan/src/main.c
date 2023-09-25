@@ -17,45 +17,25 @@
 #include <string.h>
 #include <stdlib.h>
 #include <peekpoke.h>
-#include "sio.h"
 #include "conio.h"
 #include "err.h"
-
-#define MAX_SSID_LEN 33 /* SSID + NULL */
+#include "fn_io.h"
 
 char buf[40];
+static SSIDInfo ssidInfo;
 
-union 
-{
-  struct
-  {
-    char ssid[33];
-    signed char rssi;
-  };
-  unsigned char rawData[34];
-} ssidInfo;
-
-unsigned char num_networks[4];
+unsigned char num_networks;
 
 /**
  * Return number of networks
  */
 unsigned char scan(void)
 {
-  OS.dcb.ddevic=0x70;
-  OS.dcb.dunit=1;
-  OS.dcb.dcomnd=0xFD; // do scan
-  OS.dcb.dstats=0x40; // Peripheral->Computer
-  OS.dcb.dbuf=&num_networks;
-  OS.dcb.dtimlo=0x0F; // 15 second timeout
-  OS.dcb.dbyt=4;      // 4 byte response
-  OS.dcb.daux=0;
-  siov();
-
-  if (OS.dcb.dstats!=0x01)
-    {
-      err_sio();
-    }
+  num_networks = fn_io_scan_for_networks();
+  if (OS.dcb.dstats != 0x01)
+  {
+    err_sio();
+  }
   return OS.dcb.dstats;
 }
 
@@ -64,20 +44,11 @@ unsigned char scan(void)
  */
 unsigned char scan_result(unsigned char n)
 {
-  OS.dcb.ddevic=0x70;
-  OS.dcb.dunit=1;
-  OS.dcb.dcomnd=0xFC; // Return scan result
-  OS.dcb.dstats=0x40; // Peripheral->Computer
-  OS.dcb.dbuf=&ssidInfo.rawData;
-  OS.dcb.dtimlo=0x0F; // 15 second timeout
-  OS.dcb.dbyt=sizeof(ssidInfo.rawData);
-  OS.dcb.daux1=n;     // get entry #n
-  siov();
-
-  if (OS.dcb.dstats!=0x01)
-    {
-      err_sio();
-    }
+  fn_io_get_scan_result(n, &ssidInfo);
+  if (OS.dcb.dstats != 0x01)
+  {
+    err_sio();
+  }
   return OS.dcb.dstats;
 }
 
@@ -86,38 +57,38 @@ unsigned char scan_result(unsigned char n)
  */
 int main(void)
 {
-  unsigned char i=0;
-  unsigned char err=0;
+  unsigned char i = 0;
+  unsigned char err = 0;
 
-  OS.lmargn=2;
-  
+  OS.lmargn = 2;
+
   print("\x9b");
-  
-  OS.lmargn=2;
-  
-  print("Scanning...\x9b");
-  err=scan();
 
-  if (err==1)
+  OS.lmargn = 2;
+
+  print("Scanning...\x9b");
+  err = scan();
+
+  if (err == 1)
+  {
+    for (i = 0; i < num_networks; i++)
     {
-      for (i=0;i<num_networks[0];i++)
-      {
-        err=scan_result(i);
-        if (err!=1)
-          break;
-        print("* ");
-        print(ssidInfo.ssid);
-        print("\x9b");
-      }
+      err = scan_result(i);
+      if (err != 1)
+        break;
+      print("* ");
+      print(ssidInfo.ssid);
+      print("\x9b");
     }
+  }
 
   print("\x9b");
 
   if (!_is_cmdline_dos())
-    {
-      print("PRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
-      get_line(buf,sizeof(buf));
-    }
-  
-  return err==1 ? 0 : err;
+  {
+    print("PRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
+    get_line(buf, sizeof(buf));
+  }
+
+  return err == 1 ? 0 : err;
 }

@@ -17,18 +17,13 @@
 #include <string.h>
 #include <stdlib.h>
 #include <peekpoke.h>
-#include "sio.h"
 #include "conio.h"
 #include "err.h"
+#include "fn_io.h"
 
-const char msg_host_slot[]="HOST SLOT #";
+const char msg_host_slot[] = "HOST SLOT #";
 char buf[80];
-
-union
-{
-  char host[8][32];
-  unsigned char rawData[256];
-} hostSlots;
+static HostSlot hostSlots[8];
 
 /**
  * Wait for keypress
@@ -36,10 +31,10 @@ union
 void pause(void)
 {
   if (!_is_cmdline_dos())
-    {
-      print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
-      get_line(buf,sizeof(buf));
-    }
+  {
+    print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
+    get_line(buf, sizeof(buf));
+  }
 }
 
 /**
@@ -48,22 +43,13 @@ void pause(void)
 void host_read(void)
 {
   // Query for host slots
-  OS.dcb.ddevic=0x70;
-  OS.dcb.dunit=1;
-  OS.dcb.dcomnd=0xF4; // Get host slots
-  OS.dcb.dstats=0x40;
-  OS.dcb.dbuf=&hostSlots.rawData;
-  OS.dcb.dtimlo=0x0f;
-  OS.dcb.dbyt=256;
-  OS.dcb.daux=0;
-  siov();
-
-  if (OS.dcb.dstats!=1)
-    {
-      err_sio();
-      pause();
-      exit(OS.dcb.dstats);
-    }
+  fn_io_get_host_slots(hostSlots);
+  if (OS.dcb.dstats != 1)
+  {
+    err_sio();
+    pause();
+    exit(OS.dcb.dstats);
+  }
 }
 
 /**
@@ -71,25 +57,16 @@ void host_read(void)
  */
 void host_mount(unsigned char c)
 {
-  if (hostSlots.host[c][0]!=0x00)
+  if (hostSlots[c][0] != 0x00)
+  {
+    fn_io_mount_host_slot(c);
+    if (OS.dcb.dstats != 1)
     {
-      OS.dcb.ddevic=0x70;
-      OS.dcb.dunit=1;
-      OS.dcb.dcomnd=0xF9;
-      OS.dcb.dstats=0x00;
-      OS.dcb.dbuf=NULL;
-      OS.dcb.dtimlo=0x01;
-      OS.dcb.dbyt=0;
-      OS.dcb.daux=c;
-      siov();
-      
-      if (OS.dcb.dstats!=1)
-	{
-	  err_sio();
-	  pause();
-	  exit(OS.dcb.dstats);
-	} 
+      err_sio();
+      pause();
+      exit(OS.dcb.dstats);
     }
+  }
 }
 
 /**
@@ -97,29 +74,19 @@ void host_mount(unsigned char c)
  */
 void host_write(void)
 {
-  OS.dcb.ddevic=0x70;
-  OS.dcb.dunit=1;
-  OS.dcb.dcomnd=0xF3;
-  OS.dcb.dstats=0x80;
-  OS.dcb.dbuf=&hostSlots.rawData;
-  OS.dcb.dtimlo=0x0f;
-  OS.dcb.dbyt=256;
-  OS.dcb.daux=0;
-  siov();
-  
-  if (OS.dcb.dstats!=1)
-    {
-      err_sio();
-      pause();
-      exit(OS.dcb.dstats);
-    }
+  fn_io_put_host_slots(hostSlots);
+  if (OS.dcb.dstats != 1)
+  {
+    err_sio();
+    pause();
+    exit(OS.dcb.dstats);
+  }
 }
-
 
 /**
  * show options
  */
-void opts(char* argv[])
+void opts(char *argv[])
 {
   print(argv[0]);
   print(" <hs#>,[HOSTNAME]\x9b\x9b");
@@ -130,76 +97,74 @@ void opts(char* argv[])
 /**
  * main
  */
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
-  unsigned char sa=argv[1][0];
-  unsigned char s=sa-0x30;
+  unsigned char sa = argv[1][0];
+  unsigned char s = sa - 0x30;
   unsigned char i;
 
-  OS.lmargn=2;
-  
+  OS.lmargn = 2;
+
   if (_is_cmdline_dos())
+  {
+    if (argc < 2)
     {
-      if (argc<2)
-	{
-	  opts(argv);
-	  return(1);
-	}
-      
-      strcpy(buf,argv[1]);
-    }
-  else
-    {
-      print("EDIT HOST SLOT--NUMBER, HOSTNAME?\x9b");
-      get_line(buf,sizeof(buf));
+      opts(argv);
+      return (1);
     }
 
-  sa=buf[0];
-  s=buf[0]-0x31;
-  for (i=0;i<strlen(buf);i++)
+    strcpy(buf, argv[1]);
+  }
+  else
+  {
+    print("EDIT HOST SLOT--NUMBER, HOSTNAME?\x9b");
+    get_line(buf, sizeof(buf));
+  }
+
+  sa = buf[0];
+  s = buf[0] - 0x31;
+  for (i = 0; i < strlen(buf); i++)
+  {
+    if (buf[i] == ',')
     {
-      if (buf[i]==',')
-	{
-	  i++;
-	  break;
-	}	  
+      i++;
+      break;
     }
-  
+  }
+
   // Trim any whitespace
-  while (buf[i]==' ')
+  while (buf[i] == ' ')
     i++;
 
-  
-  if (s<1 || s>8)
-    {
-      print("INVALID SLOT NUMBER.\x9b");
-      pause();
-      return(1);
-    }
+  if (s < 1 || s > 8)
+  {
+    print("INVALID SLOT NUMBER.\x9b");
+    pause();
+    return (1);
+  }
 
   // Read in host and device slots from FujiNet
   host_read();
 
   // alter host slot
-  if (buf[i]==0x00)
-    {
-      // Erase host
-      memset(hostSlots.host[s],0x00,sizeof(hostSlots.host[s]));
-      print(msg_host_slot);
-      printc(&sa);
-      print("--CLEARED\x9b");
-    }
-  
+  if (buf[i] == 0x00)
+  {
+    // Erase host
+    memset(hostSlots[s], 0x00, sizeof(hostSlots[s]));
+    print(msg_host_slot);
+    printc(&sa);
+    print("--CLEARED\x9b");
+  }
   else
-    {
-      // Alter host value
-      strcpy(hostSlots.host[s],&buf[i]);
-      print(msg_host_slot);
-      printc(&sa);
-      print("--CHANGED TO:\x9b");
-      print(&buf[i]);
-      print("\x9b");
-    }
+  {
+    // Alter host value
+    strcpy(hostSlots[s], &buf[i]);
+    print(msg_host_slot);
+    printc(&sa);
+    print("--CHANGED TO:\x9b");
+    print(&buf[i]);
+    print("\x9b");
+  }
 
   // write the deviceSlots back to FujiNet
   host_write();
@@ -208,5 +173,5 @@ int main(int argc, char* argv[])
   host_mount(s);
 
   pause();
-  return(0);
+  return (0);
 }
