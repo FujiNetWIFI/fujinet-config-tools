@@ -1,7 +1,17 @@
-#FujiNet Config Tools
-=========
+# FujiNet Config Tools
 
 A set of programs to aid in configuring the FujiNet device from an Atari via DOS.
+
+## Building
+
+Ensure you have a well configured cc65 installation.
+
+```shell
+cd atari
+make clean all dist
+```
+
+## Usage
 
 Usage from command-line based DOSes (like SpartaDOS) are shown here.
 

@@ -13,3 +13,5 @@ obj/
 
 # Don't ignore .COM files in the dist folder
 !dist/*.com
+
+build/
