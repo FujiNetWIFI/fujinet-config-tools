@@ -1,114 +1,46 @@
 /**
- * Show FujiNet Adapter Config
- *
+ * @brief   Show FujiNet Config
  * @author  Thomas Cherryhomes
  * @email   thom dot cherryhomes at gmail dot com
- * @license gpl v. 3
+ * @license gpl v. 3, see LICENSE for details.
+ * @verbose Main Program
  */
 
-#include <apple2.h>
-#include <conio.h>
 #include <stdio.h>
 #include <stdint.h>
-#include "sp.h"
+#include <fujinet-fuji.h>
+#include <cc65.h>
 
-#define GET_ADAPTER_CONFIG 0xe8
+const char *banner_fmt="%-39s\n";
+const char *field_fmt="%18s%-21s\n";
 
-int8_t fuji; // The FujiNet device #
+char *s;
 
-struct _adapterConfig
-{
-  char ssid[33];
-  char hostname[64];
-  unsigned char localIP[4];
-  unsigned char gateway[4];
-  unsigned char netmask[4];
-  unsigned char dnsIP[4];
-  unsigned char macAddress[6];
-  unsigned char bssid[6];
-  char firmware[15];
-} *adapterConfig;
-
-void print_adapter_config(void)
-{
-  unsigned char err;
-  
-  printf("\n");
-
-  err = sp_status(fuji,GET_ADAPTER_CONFIG);
-
-  if (err)
-    {
-      printf("ERROR RETRIEVING ADAPTER CONFIGURATION.\n\n");
-      return;
-    }
-
-  adapterConfig = (struct _adapterConfig *)&sp_payload[0];
-
-  printf("FUJINET CONFIGURATION\n");
-  printf("---------------------\n\n");
-
-  printf("SSID:\n%-32s\n\n",adapterConfig->ssid);
-
-  printf("HOSTNAME:\n%-64s\n\n",adapterConfig->hostname);
-
-  printf("      IP: %3u.%3u.%3u.%3u\n",
-	 adapterConfig->localIP[0],
-	 adapterConfig->localIP[1],
-	 adapterConfig->localIP[2],
-	 adapterConfig->localIP[3]);
-
-  printf(" NETMASK: %3u.%3u.%3u.%3u\n",
-	 adapterConfig->netmask[0],
-	 adapterConfig->netmask[1],
-	 adapterConfig->netmask[2],
-	 adapterConfig->netmask[3]);
-
-  printf(" GATEWAY: %3u.%3u.%3u.%3u\n",
-	 adapterConfig->gateway[0],
-	 adapterConfig->gateway[1],
-	 adapterConfig->gateway[2],
-	 adapterConfig->gateway[3]);
-
-  printf("     DNS: %3u.%3u.%3u.%3u\n",
-	 adapterConfig->dnsIP[0],
-	 adapterConfig->dnsIP[1],
-	 adapterConfig->dnsIP[2],
-	 adapterConfig->dnsIP[3]);
-
-  printf("     MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
-	 adapterConfig->macAddress[0],
-	 adapterConfig->macAddress[1],
-	 adapterConfig->macAddress[2],
-	 adapterConfig->macAddress[3],
-	 adapterConfig->macAddress[4],
-	 adapterConfig->macAddress[5]);
-
-  printf("   BSSID: %02x:%02x:%02x:%02x:%02x:%02x\n",
-	 adapterConfig->bssid[0],
-	 adapterConfig->bssid[1],
-	 adapterConfig->bssid[2],
-	 adapterConfig->bssid[3],
-	 adapterConfig->bssid[4],
-	 adapterConfig->bssid[5]);
-
-  printf("   FNVER: %s",
-	 adapterConfig->firmware);
-  
-  printf("\n\n");
-}
+AdapterConfigExtended ace;
 
 void main(void)
 {
-  cursor(1);
-  sp_init();
-  fuji = sp_find_fuji();
+    if (!fuji_get_adapter_config_extended(&ace))
+    {
+        printf("COULD NOT READ ADAPTER CONFIG.\n");
+        return;
+    }
 
-  if (fuji == 0)
-      printf("\nCOULD NOT FIND FUJINET.\n");
-  else
-    print_adapter_config();
+    printf(banner_fmt,"FUJINET NETWORK CONFIGURATION");
+    printf(banner_fmt,"-----------------------------");
+    printf(field_fmt,"HOSTNAME:",ace.hostname);
+    printf(field_fmt,"SSID:",ace.ssid);
+    printf(field_fmt,"LOCAL IP:",ace.sLocalIP);
+    printf(field_fmt,"GATEWAY:",ace.sGateway);
+    printf(field_fmt,"NETMASK:",ace.sNetmask);
+    printf(field_fmt,"DNS IP:",ace.sDnsIP);
+    printf(field_fmt,"MAC:",ace.sMacAddress);
+    printf(field_fmt,"BSSID:",ace.sBssid);
+    printf(field_fmt,"FUJINET VERSION:",ace.fn_version);
 
-  printf("PRESS ANY KEY TO CONTINUE.");
-  cgetc();  
+    if (doesclrscrafterexit())
+    {
+        printf("\nPRESS ANY KEY TO CONTINUE. ");
+        getchar();
+    }
 }
