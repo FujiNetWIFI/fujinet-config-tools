@@ -4,7 +4,7 @@ LIBS = libs/libfuji.a
 DSKNAME = fntools.dsk
 
 dsk: all
-	os9 format -q $(DSKNAME)
+	os9 format -q -n"FujiNet OS-9 Tools" $(DSKNAME)
 	os9 makdir $(DSKNAME),CMDS
 	os9 copy $(CMDS) fntools.dsk,CMDS
 	$(foreach file,$(CMDS),os9 attr -epe -q $(DSKNAME),CMDS/$(file);)
