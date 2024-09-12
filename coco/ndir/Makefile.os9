@@ -1,0 +1,36 @@
+TARGET_EXEC ?= ndir
+
+BUILD_DIR ?= ./build
+SRC_DIRS ?= ./src
+
+CC=cmoc
+
+SRCS := $(shell find $(SRC_DIRS) -name *.c)
+OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
+DEPS := $(OBJS:.o=.d)
+
+CFLAGS= --os9
+LDFLAGS=--os9 -o$(TARGET_EXEC)
+
+INC_DIRS := $(shell find $(SRC_DIRS) -type d)
+INC_FLAGS := $(addprefix -I,$(INC_DIRS))
+
+$(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
+	$(CC) $(LDFLAGS) $(OBJS)
+	$(RM) $(TARGET_EXEC)
+	os9 format $(TARGET_EXEC)_os9.dsk
+	os9 copy $(TARGET_EXEC) $(TARGET_EXEC)_os9.dsk,
+
+# c source
+$(BUILD_DIR)/%.c.o: %.c
+	$(MKDIR_P) $(dir $@)
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+.PHONY: clean
+
+clean:
+	$(RM) -r $(TARGET_EXEC)*
+
+-include $(DEPS)
+
+MKDIR_P ?= mkdir -p
