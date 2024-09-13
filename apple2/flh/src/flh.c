@@ -10,12 +10,18 @@
 #include <stdint.h>
 #include <fujinet-fuji.h>
 #include <cc65.h>
+#include <apple2.h>
 
 HostSlot hs[8];
 
 void main(void)
 {
     unsigned char i=0;
+
+    if (get_ostype() >= APPLE_IIE)
+    {
+        allow_lowercase(true);
+    }
 
     fuji_get_host_slots(hs,8);
 
@@ -26,7 +32,7 @@ void main(void)
     
     if (doesclrscrafterexit())
     {
-        printf("\nPRESS ANY KEY TO CONTINUE. ");
+        printf("\nPress any key to continue. ");
         getchar();
     }
 }

@@ -16,8 +16,7 @@
  * @brief read an input line.
  * @param s The output buffer. Must be at least len bytes.
  * @param len Allowable # of characters.
- * @return last character emitted.
  */
-char read_line(char *s, uint16_t len);
+void read_line(char *s, uint16_t len);
 
 #endif /* READ_LINE_H */
