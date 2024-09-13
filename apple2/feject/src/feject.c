@@ -11,6 +11,7 @@
 #include <fujinet-fuji.h>
 #include <cc65.h>
 #include <string.h>
+#include <apple2.h>
 
 unsigned char selected_slot=0;
 DeviceSlot ds[6];
@@ -31,12 +32,17 @@ void feject(unsigned char slot)
 
     slot++;
 
-    printf("\nDEVICE SLOT %u EJECTED.\n",slot);    
+    printf("\nDevice slot %u ejected.\n",slot);    
 }
 
 void main(void)
 {
-    printf("\nEJECT DEVICE SLOT--WHICH SLOT? (1-4)\n");
+    if (get_ostype() >= APPLE_IIE)
+    {
+        allow_lowercase(true);
+    }
+
+    printf("\nEject device slot--Which slot? (1-4)\n");
     scanf("%u",&selected_slot);
     
     if (!selected_slot || selected_slot > 4)
@@ -48,7 +54,7 @@ void main(void)
 
     if (doesclrscrafterexit())
     {
-        printf("\nPRESS ANY KEY TO CONTINUE. ");
+        printf("\nPress any key to continue. ");
         getchar();
     }
 }

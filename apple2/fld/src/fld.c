@@ -28,11 +28,11 @@ void print_device_slot(unsigned char i)
 {
     if (ostype == APPLE_IIC && i == 4 && ds[i].file[0] == 0x00)
     {
-        printf("%u: : :IIC INTERNAL FLOPPY",i);
+        printf("%u: : :IIC internal floppy",i);
     }
     else if (!ds[i].file[0])
     {
-        printf("%u: : :<EMPTY>\n",i);
+        printf("%u: : :<empty>\n",i);
     }
     else
     {
@@ -42,7 +42,7 @@ void print_device_slot(unsigned char i)
 
 void print_smartport_slots(void)
 {
-    printf("-------------------------SMARTPORT-SLOTS");
+    printf("-------------------------Smartport-Slots");
 
     for (i=0;i<4;i++)
     {
@@ -52,7 +52,7 @@ void print_smartport_slots(void)
 
 void print_diskii_slots(void)
 {
-    printf("---------------------------DISK II-SLOTS");
+    printf("---------------------------Disk II-Slots");
 
     for (i=4;i<6;i++)
     {
@@ -62,6 +62,11 @@ void print_diskii_slots(void)
 
 void main(void)
 {
+    if (get_ostype() >= APPLE_IIE)
+    {
+        allow_lowercase(true);
+    }
+
     ostype = get_ostype() & 0xF0;
     
     fuji_get_device_slots(ds,6);
@@ -71,7 +76,7 @@ void main(void)
         
     if (doesclrscrafterexit())
     {
-        printf("\nPRESS ANY KEY TO CONTINUE. ");
+        printf("\nPress any key to continue. ");
         getchar();
     }
 }

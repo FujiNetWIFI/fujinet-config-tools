@@ -11,8 +11,8 @@
 #include <fujinet-fuji.h>
 #include <cc65.h>
 #include <string.h>
+#include <apple2.h>
 #include "read_line.h"
-#include "text.h"
 
 unsigned char selected_slot=0;
 HostSlot hs[8];
@@ -30,12 +30,17 @@ void fhost(unsigned char slot, char *s)
 
     slot++;
     
-    printf("\n\nHOST SLOT %u SET TO: %s\n\n",slot,s);
+    printf("\n\nHost slot %u set to: %s\n\n",slot,s);
 }
 
 void main(void)
 {
-    printf("\nCHANGE HOST SLOT--WHICH SLOT? (1-8)\n");
+    if (get_ostype() >= APPLE_IIE)
+    {
+        allow_lowercase(true);
+    }
+
+    printf("\nChange host slot--Which slot? (1-8)\n");
     scanf("%u",&selected_slot);
     
     if (!selected_slot || selected_slot > 8)
@@ -43,7 +48,7 @@ void main(void)
         return;
     }
 
-    printf("\nNEW HOST NAME, OR RETURN TO CLEAR\n");
+    printf("\nNew host name, or RETURN to clear\n");
 
     read_line(new_host_name,sizeof(new_host_name));
 
@@ -51,7 +56,7 @@ void main(void)
 
     if (doesclrscrafterexit())
     {
-        printf("\nPRESS ANY KEY TO CONTINUE. ");
+        printf("\nPress any key to continue. ");
         getchar();
     }
 }
