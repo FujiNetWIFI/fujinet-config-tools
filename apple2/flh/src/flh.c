@@ -18,7 +18,7 @@ void main(void)
 {
     unsigned char i=0;
 
-    if (get_ostype() >= APPLE_IIE)
+    if (get_ostype() >= APPLE_IIIEM)
     {
         allow_lowercase(true);
     }
