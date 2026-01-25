@@ -21,6 +21,8 @@
 
 unsigned char _nsio(unsigned char dunit, unsigned char dcomnd, unsigned char dstats, void *dbuf, unsigned short dbyt, unsigned short daux)
 {
+  unsigned char err=0;
+
   OS.dcb.ddevic=0x71;
   OS.dcb.dunit=dunit;
   OS.dcb.dcomnd=dcomnd;
@@ -29,7 +31,17 @@ unsigned char _nsio(unsigned char dunit, unsigned char dcomnd, unsigned char dst
   OS.dcb.dtimlo=0x1f;
   OS.dcb.dbyt=dbyt;
   OS.dcb.daux=daux;
-  return siov();
+
+  err = siov();
+
+  // If SIO error, get proper error via status
+  if (err == 144)
+  {
+	nstatus(dunit);
+	err = OS.dvstat[3];
+  }
+
+  return err;
 }
 
 unsigned char nopen(unsigned char unit, char* buf, unsigned char aux1)
