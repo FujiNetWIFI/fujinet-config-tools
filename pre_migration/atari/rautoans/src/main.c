@@ -19,6 +19,7 @@
 #include "sio.h"
 #include "conio.h"
 #include "err.h"
+#include <peekpoke.h>
 
 unsigned char buf[40];
 unsigned char newBaud=0;
@@ -48,6 +49,16 @@ unsigned char auto_ans(unsigned char l)
 }
 
 /**
+ * @brief Shown if in ATARI DOS 3
+ */
+void dos3_clear(void)
+{
+    print("\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c");
+    print("\xD3\xE5\xF4\xA0\xD2\xBA\xA0\xC1\xF5\xF4\xEF\xAD\xC1\xEE\xF3\xF7\xE5\xF2");
+    print("\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c");
+}
+
+/**
  * show options
  */
 void opts(char* argv[])
@@ -65,9 +76,12 @@ int main(int argc, char* argv[])
   unsigned char err=0;
   unsigned char o=0;
   unsigned char i=0;
-  
+
+  if (PEEK(0x718) == 53)
+      dos3_clear();
+
   OS.lmargn=2;
-  
+
   if (_is_cmdline_dos())
     {
       o=atoi(argv[1]);
@@ -85,14 +99,14 @@ int main(int argc, char* argv[])
 	    buf[i]=0x00;
 	}
     }
-  
+
   err=auto_ans(o);
-  
-  if (!_is_cmdline_dos())
+
+  if (_dos_type == MYDOS)
     {
       print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
       get_line(buf,sizeof(buf));
     }
-  
+
   return(err != 1);
 }

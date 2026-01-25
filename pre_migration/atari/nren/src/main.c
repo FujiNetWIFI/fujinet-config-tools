@@ -39,7 +39,7 @@ void nren(unsigned char unit)
   if (OS.dcb.dstats!=1)
     {
       err_sio();
-      if (!_is_cmdline_dos())
+      if (_dos_type == MYDOS)
         {
           print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
           get_line(buf,sizeof(buf));
@@ -48,13 +48,26 @@ void nren(unsigned char unit)
     }
 }
 
+/**
+ * @brief Shown if in ATARI DOS 3
+ */
+void dos3_clear(void)
+{
+    print("\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c");
+    print("\xD2\xE5\xEE\xE1\xED\xE5\xA0\xCE\xE5\xF4\xF7\xEF\xF2\xEB\xA0\xC6\xE9\xEC\xE5");
+    print("\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c");
+}
+
 int main(int argc, char* argv[])
 {
   unsigned char tmp[2]={0,0};
   unsigned char u=1;
-  
+
+  if (PEEK(0x718) == 53)
+      dos3_clear();
+
   OS.lmargn=2;
-  
+
   if (_is_cmdline_dos())
     {
       if (argc<2)
@@ -89,6 +102,6 @@ int main(int argc, char* argv[])
     u=buf[1]-0x30;
 
   nren(u);
-  
+
   return(0);
 }

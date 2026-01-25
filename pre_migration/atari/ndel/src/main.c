@@ -43,11 +43,24 @@ unsigned char ndel(unsigned char unit)
   return OS.dcb.dstats;
 }
 
+/**
+ * @brief Shown if in ATARI DOS 3
+ */
+void dos3_clear(void)
+{
+    print("\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c");
+    print("\xC4\xE5\xEC\xE5\xF4\xE5\xA0\xCE\xE5\xF4\xF7\xEF\xF2\xEB\xA0\xC6\xE9\xEC\xE5\xA8\xF3\xA9");
+    print("\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c");
+}
+
 int main(int argc, char* argv[])
 {
   unsigned char tmp[2]={0,0};
   unsigned char u=1;
   unsigned char err=0;
+
+  if (PEEK(0x718) == 53)
+      dos3_clear();
 
   OS.lmargn=2;
 
@@ -86,7 +99,7 @@ int main(int argc, char* argv[])
 
   err=ndel(u);
 
-  if (!_is_cmdline_dos())
+  if (_dos_type == MYDOS)
     {
       print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
       get_line(buf,sizeof(buf));

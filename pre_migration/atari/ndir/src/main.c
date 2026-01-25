@@ -28,10 +28,10 @@ unsigned char i=0;
  */
 void pause(void)
 {
-  if (!_is_cmdline_dos() && _dos_type != ATARIDOS)
+    if (_dos_type == MYDOS)
     {
-      print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
-      get_line(buf,sizeof(buf));
+        print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
+        get_line(buf,sizeof(buf));
     }
 }
 
@@ -119,13 +119,26 @@ void nstatus(unsigned char unit)
     }
 }
 
+/**
+ * @brief Shown if in ATARI DOS 3
+ */
+void dos3_clear(void)
+{
+    print("\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c");
+    print("\xCE\xE5\xF4\xF7\xEF\xF2\xEB\xA0\xC4\xE9\xF2\xE5\xE3\xF4\xEF\xF2\xF9");
+    print("\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c");
+}
+
 int main(int argc, char* argv[])
 {
   unsigned char u=1;
   unsigned short ab=0;
-  
+
+  if (PEEK(0x718) == 53)
+      dos3_clear();
+
   OS.lmargn=2;
-  
+
   if (_is_cmdline_dos())
     {
       if (argc<2)
@@ -163,7 +176,7 @@ int main(int argc, char* argv[])
 
   do {
     nstatus(u);
-    
+
     ab=OS.dvstat[1]*256+OS.dvstat[0];
 
     if (ab>255)
@@ -176,14 +189,14 @@ int main(int argc, char* argv[])
     nread(u,ab);
 
     print(buf);
-    
+
   } while(ab!=0);
 
   nclose(u);
 
   pause();
 
-  print("\x9B"); 
-  
+  print("\x9B");
+
   return(0);
 }

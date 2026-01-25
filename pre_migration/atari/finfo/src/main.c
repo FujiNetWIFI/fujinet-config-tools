@@ -104,7 +104,7 @@ void print_num16(unsigned char nl, unsigned char nh)
 void print_disk_type(void)
 {
   print("Disk Type: ");
-  
+
   if (percomBlock.block.num_tracks == 40 &&
       percomBlock.block.sptL == 18 &&
       percomBlock.block.sector_sizeL == 128)
@@ -131,7 +131,7 @@ void print_disk_type(void)
       if (percomBlock.block.num_sides == 0)
 	print("360K SS/QD");
       else
-	print("720K DS/QD");     
+	print("720K DS/QD");
     }
   else if (percomBlock.block.num_tracks == 77)
     {
@@ -162,7 +162,7 @@ void print_disk_type(void)
 
       size = ((long)percomBlock.block.sptH*(long)256+(long)percomBlock.block.sptL);
       size *= ((long)percomBlock.block.sector_sizeH*(long)256+(long)percomBlock.block.sector_sizeL);
-      
+
       print("Large disk ");
 
       if (size >= 1048576)
@@ -213,6 +213,16 @@ void finfo(void)
 }
 
 /**
+ * @brief Shown if in ATARI DOS 3
+ */
+void dos3_clear(void)
+{
+    print("\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c");
+    print("\xD3\xE8\xEF\xF7\xA0\xC4\xE5\xF6\xE9\xE3\xE5\xA0\xD3\xEC\xEF\xF4\xA0\xC4\xE9\xF3\xEB\xA0\xC9\xEE\xE6\xEF");
+    print("\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c");
+}
+
+/**
  * main
  */
 int main(int argc, char* argv[])
@@ -221,6 +231,9 @@ int main(int argc, char* argv[])
   unsigned char err=0;
 
   OS.lmargn=2;
+
+  if (PEEK(0x718) == 53)
+      dos3_clear();
 
   if (_is_cmdline_dos())
     {
@@ -247,11 +260,11 @@ int main(int argc, char* argv[])
   if (err==1)
     finfo();
 
-  if (!_is_cmdline_dos())
+  if (_dos_type == MYDOS)
     {
       print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
       get_line(buf,sizeof(buf));
     }
-  
+
   return err==1 ? 0 : err;
 }

@@ -19,6 +19,7 @@
 #include "conio.h"
 #include "err.h"
 #include "fn_io.h"
+#include <peekpoke.h>
 
 unsigned char buf[40];
 unsigned short kHz;
@@ -46,6 +47,16 @@ void opts(char *argv[])
 }
 
 /**
+ * @brief Shown if in ATARI DOS 3
+ */
+void dos3_clear(void)
+{
+    print("\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c");
+    print("\xD3\xE5\xF4\xA0\xC6\xF5\xEA\xE9\xCE\xE5\xF4\xA0\xC5\xF8\xF4\xE5\xF2\xEE\xE1\xEC\xA0\xD3\xC9\xCF\xA0\xC3\xEC\xEF\xE3\xEB");
+    print("\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c");
+}
+
+/**
  * main
  */
 int main(int argc, char *argv[])
@@ -54,6 +65,9 @@ int main(int argc, char *argv[])
   char ratestr[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
   OS.lmargn = 2;
+
+  if (PEEK(0x718) == 53)
+      dos3_clear();
 
   if (_is_cmdline_dos())
   {
@@ -88,7 +102,7 @@ int main(int argc, char *argv[])
 
   err = fesclk(kHz);
 
-  if (!_is_cmdline_dos())
+  if (_dos_type == MYDOS)
   {
     print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
     get_line(buf, sizeof(buf));

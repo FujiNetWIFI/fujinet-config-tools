@@ -1,10 +1,10 @@
 /**
  * FujiNet Tools for CLI
  *
- * fld - list disk slots
+ * fconfig - Show FujiNet Configuration
  *
  * usage:
- *  fld
+ *  fconfig
  *
  * Author: Thomas Cherryhomes
  *  <thom.cherryhomes@gmail.com>
@@ -39,6 +39,16 @@ unsigned char adapter_config(void)
 }
 
 /**
+ * @brief Shown if in ATARI DOS 3
+ */
+void dos3_clear(void)
+{
+    print("\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c");
+    print("\xC6\xF5\xEA\xE9\xCE\xE5\xF4\xA0\xCE\xE5\xF4\xF7\xEF\xF2\xEB\xA0\xC3\xEF\xEE\xE6\xE9\xE7\xF5\xF2\xE1\xF4\xE9\xEF\xEE");
+    print("\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c");
+}
+
+/**
  * main
  */
 int main(void)
@@ -46,6 +56,9 @@ int main(void)
   unsigned char err = 0;
 
   OS.lmargn = 2;
+
+  if (PEEK(0x718) == 53)
+      dos3_clear();
 
   // Read adapter config
   err = adapter_config();
@@ -95,7 +108,7 @@ int main(void)
     print("\x9b");
   }
 
-  if (!_is_cmdline_dos())
+  if (_dos_type == MYDOS)
   {
     print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
     get_line(buf, sizeof(buf));

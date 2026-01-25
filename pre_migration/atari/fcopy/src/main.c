@@ -17,6 +17,7 @@
 #include "conio.h"
 #include "err.h"
 #include "fn_io.h"
+#include <peekpoke.h>
 
 unsigned char source_slot, dest_slot;
 unsigned char linebuf[128];
@@ -78,12 +79,25 @@ bool parse_cmdline(char *argv[])
   return true;
 }
 
+/**
+ * @brief Shown if in ATARI DOS 3
+ */
+void dos3_clear(void)
+{
+    print("\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c");
+    print("\xC3\xEF\xF0\xF9\xA0\xC6\xE9\xEC\xE5\xA0\xC2\xE5\xF4\xF7\xE5\xE5\xEE\xA0\xC6\xF5\xEA\xE9\xCE\xE5\xF4\xA0\xC8\xEF\xF3\xF4\xA0\xD3\xEC\xEF\xF4\xF3");
+    print("\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c");
+}
+
 int main(int argc, char *argv[])
 {
   char tmp[4];
   unsigned char err = 0;
 
   OS.lmargn = 2;
+
+  if (PEEK(0x718) == 53)
+      dos3_clear();
 
   if (_is_cmdline_dos())
   {
@@ -124,7 +138,7 @@ int main(int argc, char *argv[])
   err = copy();
 
   print("\x9b");
-  if (err != 1 && !_is_cmdline_dos())
+  if (err != 1 || _dos_type != MYDOS)
   {
     print("PRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
     get_line(linebuf, sizeof(linebuf));

@@ -38,13 +38,23 @@ void ntrans(unsigned char unit, unsigned char mode)
   if (OS.dcb.dstats!=1)
     {
       err_sio();
-      if (!_is_cmdline_dos())
+      if (_dos_type == MYDOS)
         {
           print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
           get_line(buf,sizeof(buf));
         }
       exit(OS.dcb.dstats);
     }
+}
+
+/**
+ * @brief Shown if in ATARI DOS 3
+ */
+void dos3_clear(void)
+{
+    print("\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c");
+    print("\xD3\xE5\xF4\xA0\xC5\xEE\xE4\xA0\xEF\xE6\xA0\xCC\xE9\xEE\xE5\xA0\xD4\xF2\xE1\xEE\xF3\xEC\xE1\xF4\xE9\xEF\xEE\xA0\xE6\xEF\xF2\xA0\xCE\xF8\xBA");
+    print("\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c");
 }
 
 void opts(void)
@@ -59,9 +69,12 @@ int main(int argc, char* argv[])
   unsigned char tmp[2]={0,0};
   unsigned char u=1;
   unsigned char m=0;
-  
+
+  if (PEEK(0x718) == 53)
+      dos3_clear();
+
   OS.lmargn=2;
-  
+
   if (_is_cmdline_dos())
     {
       if (argc<3)
@@ -95,6 +108,12 @@ int main(int argc, char* argv[])
   m=atoi(transtmp);
 
   ntrans(u,m);
+
+  if (_dos_type == MYDOS)
+  {
+      print("PRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
+      get_line(buf, sizeof(buf));
+  }
 
   return(0);
 }

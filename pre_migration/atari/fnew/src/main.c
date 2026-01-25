@@ -31,11 +31,11 @@ static NewDisk newDisk;
  */
 void pause(void)
 {
-  if (!_is_cmdline_dos())
-  {
-    print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
-    get_line(buf, sizeof(buf));
-  }
+    if (_dos_type == MYDOS)
+    {
+        print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
+        get_line(buf, sizeof(buf));
+    }
 }
 
 /**
@@ -168,6 +168,16 @@ void opts(char *argv[])
 }
 
 /**
+ * @brief Shown if in ATARI DOS 3
+ */
+void dos3_clear(void)
+{
+    print("\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c");
+    print("\xC3\xF2\xE5\xE1\xF4\xE5\xA0\xCE\xE5\xF7\xA0\xC4\xE9\xF3\xEB\xA0\xE9\xEE\xA0\xC4\xE5\xF6\xE9\xE3\xE5\xA0\xD3\xEC\xEF\xF4");
+    print("\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c");
+}
+
+/**
  * main
  */
 int main(int argc, char *argv[])
@@ -180,6 +190,9 @@ int main(int argc, char *argv[])
   char *sst;
 
   OS.lmargn = 2;
+
+  if (PEEK(0x718) == 53)
+      dos3_clear();
 
   if (_is_cmdline_dos())
   {

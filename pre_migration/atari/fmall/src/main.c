@@ -24,12 +24,25 @@
 unsigned char buf[8];
 
 /**
+ * @brief Shown if in ATARI DOS 3
+ */
+void dos3_clear(void)
+{
+    print("\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c");
+    print("\xCD\xEF\xF5\xEE\xF4\xA0\xC1\xEC\xEC\xA0\xC8\xEF\xF3\xF4\xA0\xD3\xEC\xEF\xF4\xF3");
+    print("\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c");
+}
+
+/**
  * main
  */
 int main(void)
 {
 
   OS.lmargn = 2;
+
+  if (PEEK(0x718) == 53)
+      dos3_clear();
 
   print("\x9b");
 
@@ -45,7 +58,7 @@ int main(void)
     print("ERROR");
   }
 
-  if (!_is_cmdline_dos())
+  if (_dos_type == MYDOS)
   {
     print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
     get_line(buf, sizeof(buf));

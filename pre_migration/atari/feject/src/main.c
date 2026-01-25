@@ -30,11 +30,11 @@ static DeviceSlot deviceSlots[8];
  */
 void pause(void)
 {
-  if (!_is_cmdline_dos())
-  {
-    print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
-    get_line(buf, sizeof(buf));
-  }
+    if (_dos_type == MYDOS)
+    {
+        print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
+        get_line(buf, sizeof(buf));
+    }
 }
 
 /**
@@ -119,6 +119,16 @@ void opts(char *argv[])
 }
 
 /**
+ * @brief Shown if in ATARI DOS 3
+ */
+void dos3_clear(void)
+{
+    print("\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c");
+    print("\xC5\xEA\xE5\xE3\xF4\xA0\xC6\xF5\xEA\xE9\xCE\xE5\xF4\xA0\xC4\xE5\xF6\xE9\xE3\xE5\xA0\xD3\xEC\xEF\xF4");
+    print("\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c");
+}
+
+/**
  * main
  */
 int main(int argc, char *argv[])
@@ -126,6 +136,9 @@ int main(int argc, char *argv[])
   unsigned char s = argv[1][0] - 0x30;
 
   OS.lmargn = 2;
+
+  if (PEEK(0x718) == 53)
+      dos3_clear();
 
   if (_is_cmdline_dos())
   {

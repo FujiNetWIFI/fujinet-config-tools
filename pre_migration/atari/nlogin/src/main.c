@@ -62,13 +62,26 @@ void opts(char* argv0)
   print(" <N[x]:> <login> <password>\x9b\x9b  <N[x]:> The Devicespec\x9b  <login> The login (user name)\x9b  <password>\x9b\x9b");
 }
 
+/**
+ * @brief Shown if in ATARI DOS 3
+ */
+void dos3_clear(void)
+{
+    print("\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c");
+    print("\xD3\xE5\xF4\xA0\xCE\xE5\xF4\xF7\xEF\xF2\xEB\xA0\xC3\xF2\xE5\xE4\xE5\xEE\xF4\xE9\xE1\xEC\xF3");
+    print("\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c");
+}
+
 int main(int argc, char* argv[])
 {
   unsigned char u=1;
   unsigned char err=0;
-  
+
+  if (PEEK(0x718) == 53)
+      dos3_clear();
+
   OS.lmargn=2;
-  
+
   if (_is_cmdline_dos())
     {
       if (argc<4)
@@ -103,11 +116,11 @@ int main(int argc, char* argv[])
 
   err=nlogin(u,login,password);
 
-  if (!_is_cmdline_dos())
+  if (_dos_type == MYDOS)
     {
       print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
       get_line(buf,sizeof(buf));
     }
-  
+
   return err==1 ? 0 : err;
 }

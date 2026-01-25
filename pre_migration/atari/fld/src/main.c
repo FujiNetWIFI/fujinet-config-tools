@@ -39,6 +39,16 @@ unsigned char disk_read(void)
 }
 
 /**
+ * @brief Shown if in ATARI DOS 3
+ */
+void dos3_clear(void)
+{
+    print("\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c");
+    print("\xCC\xE9\xF3\xF4\xA0\xC6\xF5\xEA\xE9\xCE\xE5\xF4\xA0\xC4\xE5\xF6\xE9\xE3\xE5\xA0\xD3\xEC\xEF\xF4\xF3");
+    print("\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c");
+}
+
+/**
  * main
  */
 int main(void)
@@ -47,6 +57,9 @@ int main(void)
   unsigned char err = 0;
 
   OS.lmargn = 2;
+
+  if (PEEK(0x718) == 53)
+      dos3_clear();
 
   // Read in host and device slots from FujiNet
   err = disk_read();
@@ -87,7 +100,7 @@ int main(void)
 
   print("\x9b");
 
-  if (!_is_cmdline_dos())
+  if (_dos_type == MYDOS)
   {
     print("PRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
     get_line(buf, sizeof(buf));

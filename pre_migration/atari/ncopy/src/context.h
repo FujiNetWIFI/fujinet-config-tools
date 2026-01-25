@@ -14,7 +14,7 @@
 #ifndef CONTEXT_H
 #define CONTEXT_H
 
-extern char buf[16384];
+extern char buf[8192];
 extern unsigned char sourceUnit;
 extern unsigned char destUnit;
 extern unsigned short dirPos;

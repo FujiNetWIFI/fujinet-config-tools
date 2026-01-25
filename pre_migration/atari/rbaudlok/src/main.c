@@ -19,6 +19,7 @@
 #include "sio.h"
 #include "conio.h"
 #include "err.h"
+#include <peekpoke.h>
 
 unsigned char buf[40];
 unsigned char newBaud=0;
@@ -85,7 +86,7 @@ void opts(char* argv[])
  * Parse option
  */
 void parseopt(char* o)
-{  
+{
   // param was baud rate
   switch (o[0])
     {
@@ -122,14 +123,27 @@ void parseopt(char* o)
 }
 
 /**
+ * @brief Shown if in ATARI DOS 3
+ */
+void dos3_clear(void)
+{
+    print("\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c");
+    print("\xCC\xEF\xE3\xEB\xA0\xD2\xBA\xA0\xC2\xE1\xF5\xE4\xA0\xD2\xE1\xF4\xE5");
+    print("\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c");
+}
+
+/**
  * main
  */
 int main(int argc, char* argv[])
 {
   unsigned char err=0;
-  
+
+  if (PEEK(0x718) == 53)
+      dos3_clear();
+
   OS.lmargn=2;
-  
+
   if (_is_cmdline_dos())
     {
       parseopt(argv[1]);
@@ -156,12 +170,12 @@ int main(int argc, char* argv[])
     configure(newBaud);
 
   baud_lock(baudLock);
-  
-  if (!_is_cmdline_dos())
+
+  if (_dos_type == MYDOS)
     {
       print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
       get_line(buf,sizeof(buf));
     }
-  
+
   return(err);
 }

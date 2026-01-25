@@ -41,8 +41,18 @@ unsigned char npwd(void)
   return OS.dcb.dstats;
 }
 
+/**
+ * @brief Shown if in ATARI DOS 3
+ */
+void dos3_clear(void)
+{
+    print("\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c");
+    print("\xD3\xE8\xEF\xF7\xA0\xC3\xF5\xF2\xF2\xE5\xEE\xF4\xA0\xCE\xE5\xF4\xF7\xEF\xF2\xEB\xA0\xC4\xE9\xF2\xE5\xE3\xF4\xEF\xF2\xF9");
+    print("\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c");
+}
+
 int main(int argc, char* argv[])
-{  
+{
   unsigned char err=0;
 
   OS.lmargn=2;
@@ -55,9 +65,9 @@ int main(int argc, char* argv[])
     unit=argv[1][1]-0x30;
   else
     unit=1;
-  
+
   err=npwd();
-  
+
   if (buf[0]==0x00)
     print("NO PREFIX SET.\x9b");
   else
@@ -65,11 +75,11 @@ int main(int argc, char* argv[])
 
   print("\x9b");
 
-  if (!_is_cmdline_dos())
+  if (_dos_type == MYDOS)
     {
       print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
       get_line(buf,sizeof(buf));
     }
-  
+
   return err==1 ? 0 : err;
 }
