@@ -31,7 +31,7 @@ static NewDisk newDisk;
  */
 void pause(void)
 {
-    if (_dos_type == MYDOS || PEEK(0x718) == 53)
+    if (_dos_type == MYDOS || PEEK(0x715) == 0x38)
     {
         print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
         get_line(buf, sizeof(buf));
@@ -163,7 +163,7 @@ void opts(char *argv[])
         "\t\t4: 360K   (DS/DD)\x9b"
         "\t\t5: 720K   (DS/QD)\x9b"
         "\t\t6: 1440K  (DS/HD), or...\x9b"
-        "\t\t1-65535:128|256 (Custom)\x9b"
+        "\t\t1-650x385:128|256 (Custom)\x9b"
         "[FNAME] - Image Filename\x9b");
 }
 
@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
 
   OS.lmargn = 2;
 
-  if (PEEK(0x718) == 53)
+  if (PEEK(0x715) == 0x38)
       dos3_clear();
 
   if (_is_cmdline_dos())

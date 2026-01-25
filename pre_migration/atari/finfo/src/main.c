@@ -234,7 +234,7 @@ int main(int argc, char* argv[])
 
   OS.lmargn=2;
 
-  if (PEEK(0x718) == 53)
+  if (PEEK(0x715) == 0x38)
       dos3_clear();
 
   if (_is_cmdline_dos())
@@ -262,7 +262,7 @@ int main(int argc, char* argv[])
   if (err==1)
     finfo();
 
-  if (_dos_type == MYDOS || PEEK(0x718) == 53)
+  if (_dos_type == MYDOS || PEEK(0x715) == 0x38)
     {
       print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
       get_line(buf,sizeof(buf));

@@ -53,7 +53,7 @@ void opts(char* argv[])
 {
   print(argv[0]);
   print(" <port#>\x9b\x9b");
-  print("<port#> - TCP Port # (1-65535)\x9b");
+  print("<port#> - TCP Port # (1-650x385)\x9b");
 }
 
 /**
@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
 {
   unsigned char err=0;
 
-  if (PEEK(0x718) == 53)
+  if (PEEK(0x715) == 0x38)
       dos3_clear();
 
   OS.lmargn=2;

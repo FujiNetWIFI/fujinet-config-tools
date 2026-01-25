@@ -28,7 +28,7 @@ static NetConfig netConfig;
  * Wait for keypress
  */
 void pause(void) {
-    if (_dos_type == MYDOS || PEEK(0x718) == 53) {
+    if (_dos_type == MYDOS || PEEK(0x715) == 0x38) {
     print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
     get_line(buf, sizeof(buf));
   }

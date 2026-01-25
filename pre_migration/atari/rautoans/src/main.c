@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
   unsigned char o=0;
   unsigned char i=0;
 
-  if (PEEK(0x718) == 53)
+  if (PEEK(0x715) == 0x38)
       dos3_clear();
 
   OS.lmargn=2;

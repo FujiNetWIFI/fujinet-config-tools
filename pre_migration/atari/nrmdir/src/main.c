@@ -67,6 +67,9 @@ int main(int argc, char* argv[])
 
   OS.lmargn=2;
 
+  if (PEEK(0x715) == 0x38)
+	  dos3_clear();
+
   if (_is_cmdline_dos())
     {
       if (argc<2)

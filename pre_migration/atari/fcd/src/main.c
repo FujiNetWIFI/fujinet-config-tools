@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
   }
   else
   {
-      if (PEEK(0x718) == 53)
+      if (PEEK(0x715) == 0x38)
           dos3_clear();
 
       // DOS 2.0/MYDOS

@@ -28,7 +28,7 @@ unsigned char i=0;
  */
 void pause(void)
 {
-    if (_dos_type == MYDOS || PEEK(0x718) == 53)
+    if (_dos_type == MYDOS || PEEK(0x715) == 0x38)
     {
         print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
         get_line(buf,sizeof(buf));
@@ -136,7 +136,7 @@ int main(int argc, char* argv[])
   unsigned char u=1;
   unsigned short ab=0;
 
-  if (PEEK(0x718) == 53)
+  if (PEEK(0x715) == 0x38)
       dos3_clear();
 
   OS.lmargn=2;

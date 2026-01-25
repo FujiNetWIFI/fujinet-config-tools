@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
   unsigned char tmp[2]={0,0};
   unsigned char u=1;
 
-  if (PEEK(0x718) == 53)
+  if (PEEK(0x715) == 0x38)
       dos3_clear();
 
   OS.lmargn=2;

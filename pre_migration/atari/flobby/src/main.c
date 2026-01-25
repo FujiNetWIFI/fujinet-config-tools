@@ -61,7 +61,7 @@ int main(void)
 
   OS.lmargn = 2;
   lobby();
-  if (PEEK(0x718) == 53)
+  if (PEEK(0x715) == 0x38)
       dos3_clear();
 
   print("BOOTING TO LOBBY.");
