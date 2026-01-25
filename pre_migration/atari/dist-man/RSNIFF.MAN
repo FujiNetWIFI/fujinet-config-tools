@@ -1,0 +1,1 @@
+RSNIFF       #Fujinet Modem Tools›Log modem traffic.››Usage:›RSNIFF <0|1>››Description:››Disable or enable sniffing (logging)›of modem (R: device) traffic.››Logs to file "rs232dump" on the FujiNet.››Messages:››No messages are displayed, unless›an error occurs with #FujiNet›

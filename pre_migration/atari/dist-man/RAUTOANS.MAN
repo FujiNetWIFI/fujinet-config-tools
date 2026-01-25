@@ -1,0 +1,1 @@
+RAUTOANS       #Fujinet Modem Tools›Auto-answer.››Usage:›RAUTOANS <0|1>››Description:››Disable or enable auto-answering›incoming network connections by the›R: device.››Messages:››No messages are displayed, unless›an error occurs with #FujiNet›
