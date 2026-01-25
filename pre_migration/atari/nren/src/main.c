@@ -53,8 +53,10 @@ void nren(unsigned char unit)
  */
 void dos3_clear(void)
 {
-    print("\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c");
-    print("\xD2\xE5\xEE\xE1\xED\xE5\xA0\xCE\xE5\xF4\xF7\xEF\xF2\xEB\xA0\xC6\xE9\xEC\xE5");
+    OS.rowcrs=9;
+    OS.colcrs=2;
+
+    print("\xD2\xE5\xEE\xE1\xED\xE5\xA0\xCE\xE5\xF4\xF7\xEF\xF2\xEB\xA0\xC6\xE9\xEC\xE5\x9b\x9b");
     print("\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c");
 }
 
@@ -87,7 +89,7 @@ int main(int argc, char* argv[])
     interactive:
       // DOS 2.0/MYDOS
       print("\x9b");
-      print("RENAME--SOURCE FILE, TO?");
+      print("RENAME--SOURCE FILE, TO?\x9b");
       get_line(buf,240);
     }
 
