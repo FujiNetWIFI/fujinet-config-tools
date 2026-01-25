@@ -10,6 +10,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <fujinet-network.h>
+#include <peekpoke.h>
 #include "cio.h"
 #include "conio.h"
 #include "put_error.h"
@@ -31,7 +32,7 @@ void fix_vseror(void)
     unsigned char *p = (unsigned char *)0xE000;
     unsigned int i=0;
 
-    if (_dos_type != 5) // Skip if not Atari DOS, not needed. 
+    if (_dos_type != 5) // Skip if not Atari DOS, not needed.
 	    return;
 
     // This whole routine exists because DOS 2 (AND ONLY DOS 2!) for some reason re-vectors VSEROR when DUP starts.
@@ -49,7 +50,7 @@ void fix_vseror(void)
 
     // Find VSEROR in ROM
     p=(unsigned char *)0xE000;
-    
+
     while (p < (unsigned char *)0xFFFF)
     {
         if (*p++ == 0x98 && *p++ == 0x48 && *p++ == 0xe6 && *p++ == 0x32)
@@ -67,7 +68,7 @@ void load(void)
         OS.dvstat[1] =
         OS.dvstat[2] =
         OS.dvstat[3] = 0x00;
-    
+
     network_open((char *)OS.lbuff, 4, 0);
 
     if (OS.dvstat[3]>1)
@@ -78,7 +79,7 @@ void load(void)
 
         // This is silly, but...
         memset(&OS.lbuff[5],0x00,1);
-        
+
         print("ERROR-   ");
         print((char *)&OS.lbuff[1]);
         return;
@@ -92,11 +93,27 @@ void load(void)
     load_app();
 }
 
+/**
+ * @brief Shown if in ATARI DOS 3
+ */
+void dos3_clear(void)
+{
+    OS.rowcrs=9;
+    OS.colcrs=2;
+
+    print("\xCE\xE5\xF4\xF7\xEF\xF2\xEB\xA0\xC2\xE9\xEE\xE1\xF2\xF9\xA0\xCC\xEF\xE1\xE4\x9b\x9b");
+    print("\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c");
+}
+
+
 bool get_filename(int argc,char **argv)
 {
     unsigned char *s = &OS.lbuff[0];
     unsigned char *d = &OS.lbuff[3];
     unsigned char i=0;
+
+    if (PEEK(0x718) == 53)
+        dos3_clear();
 
     memset(OS.lbuff,0,sizeof(OS.lbuff));
 
@@ -111,7 +128,7 @@ bool get_filename(int argc,char **argv)
             nuke_memory=true;
             start_arg++;
         }
-        
+
         // We are abusing that the pointer *argv points to is contiguous for 64 bytes.
  	for (i=start_arg;i<argc;i++)
 		strcat((char *)OS.lbuff,argv[i]);
@@ -124,9 +141,9 @@ bool get_filename(int argc,char **argv)
         if (!nuke_memory)
             if (OS.lbuff[0] == 'Y' || OS.lbuff[0] == 'y')
                 nuke_memory=1;
-        
+
         print("NETWORK LOAD FROM WHAT FILE?\x9B");
-        get_line((char *)OS.lbuff,sizeof(OS.lbuff));         
+        get_line((char *)OS.lbuff,sizeof(OS.lbuff));
     }
 
     if (OS.lbuff[0]==0x9B)
