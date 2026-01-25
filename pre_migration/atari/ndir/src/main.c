@@ -28,7 +28,7 @@ unsigned char i=0;
  */
 void pause(void)
 {
-  if (!_is_cmdline_dos())
+  if (!_is_cmdline_dos() && _dos_type != ATARIDOS)
     {
       print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
       get_line(buf,sizeof(buf));
@@ -182,6 +182,8 @@ int main(int argc, char* argv[])
   nclose(u);
 
   pause();
+
+  print("\x9B"); 
   
   return(0);
 }
