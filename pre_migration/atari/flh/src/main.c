@@ -86,7 +86,7 @@ int main(void)
 
   print("\x9b");
 
-  if (_dos_type == MYDOS)
+  if (_dos_type == MYDOS || PEEK(0x718) == 53)
   {
     print("PRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
     get_line(buf, sizeof(buf));

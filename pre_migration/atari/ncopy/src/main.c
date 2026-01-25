@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
   else if (valid_network_device(sourceDeviceSpec[0]) && valid_network_device(destDeviceSpec[0]))
     return copy_n(true);
 
-  if (_dos_type == MYDOS)
+  if (_dos_type == MYDOS || err != 1)
     {
       print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
       get_line(buf,sizeof(buf));

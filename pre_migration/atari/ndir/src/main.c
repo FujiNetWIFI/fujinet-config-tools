@@ -28,7 +28,7 @@ unsigned char i=0;
  */
 void pause(void)
 {
-    if (_dos_type == MYDOS)
+    if (_dos_type == MYDOS || PEEK(0x718) == 53)
     {
         print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
         get_line(buf,sizeof(buf));
@@ -124,8 +124,10 @@ void nstatus(unsigned char unit)
  */
 void dos3_clear(void)
 {
-    print("\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c");
-    print("\xCE\xE5\xF4\xF7\xEF\xF2\xEB\xA0\xC4\xE9\xF2\xE5\xE3\xF4\xEF\xF2\xF9");
+    OS.rowcrs=9;
+    OS.colcrs=2;
+
+    print("\xCE\xE5\xF4\xF7\xEF\xF2\xEB\xA0\xC4\xE9\xF2\xE5\xE3\xF4\xEF\xF2\xF9\x9B\x9B");
     print("\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c");
 }
 

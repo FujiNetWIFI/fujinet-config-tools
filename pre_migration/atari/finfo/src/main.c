@@ -217,7 +217,9 @@ void finfo(void)
  */
 void dos3_clear(void)
 {
-    print("\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c\x1c");
+    OS.rowcrs=9;
+    OS.colcrs=2;
+
     print("\xD3\xE8\xEF\xF7\xA0\xC4\xE5\xF6\xE9\xE3\xE5\xA0\xD3\xEC\xEF\xF4\xA0\xC4\xE9\xF3\xEB\xA0\xC9\xEE\xE6\xEF");
     print("\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c\x9c");
 }
@@ -260,7 +262,7 @@ int main(int argc, char* argv[])
   if (err==1)
     finfo();
 
-  if (_dos_type == MYDOS)
+  if (_dos_type == MYDOS || PEEK(0x718) == 53)
     {
       print("\x9bPRESS \xD2\xC5\xD4\xD5\xD2\xCE TO CONTINUE.\x9b");
       get_line(buf,sizeof(buf));
